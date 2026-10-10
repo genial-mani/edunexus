@@ -1,0 +1,24 @@
+name = "edunexus"
+main = ".open-next/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# Cloudflare D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "edunexus-db"
+database_id = "705a08b5-ef0d-4545-9788-d6b64ea29d98"
+
+# Cloudflare R2 Storage Bucket
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "edunexus-media"
+
+# Environment Variables
+[vars]
+ENVIRONMENT = "production"
+NEXT_PUBLIC_APP_URL = "https://edunexus.org"
