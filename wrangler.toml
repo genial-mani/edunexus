@@ -21,4 +21,5 @@ bucket_name = "edunexus"
 # Environment Variables
 [vars]
 ENVIRONMENT = "production"
-NEXT_PUBLIC_APP_URL = "https://edunexus.org"
+NEXT_PUBLIC_APP_URL = "https://edunexus.arundigi.in"
+R2_PUBLIC_DOMAIN = "https://media.arundigi.in"
