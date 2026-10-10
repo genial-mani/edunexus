@@ -16,7 +16,7 @@ database_id = "705a08b5-ef0d-4545-9788-d6b64ea29d98"
 # Cloudflare R2 Storage Bucket
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "edunexus-media"
+bucket_name = "edunexus"
 
 # Environment Variables
 [vars]
