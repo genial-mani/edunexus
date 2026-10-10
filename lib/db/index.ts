@@ -15,10 +15,20 @@ export function getDb(): AppDatabase {
       return drizzleD1(d1, { schema }) as unknown as AppDatabase;
     }
   } catch {
-    // Outside Cloudflare Worker runtime (local development / testing)
+    // Context unavailable or outside request scope
   }
 
-  // 2. Local development fallback: LibSQL SQLite
+  // 2. Check global bindings if in Cloudflare Workers runtime
+  const isCloudflare = typeof (globalThis as any).WebSocketPair !== "undefined" || 
+                       (typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers");
+  if (isCloudflare) {
+    const globalD1 = (globalThis as any)?.DB || (globalThis as any)?.__env__?.DB;
+    if (globalD1) {
+      return drizzleD1(globalD1, { schema }) as unknown as AppDatabase;
+    }
+  }
+
+  // 3. Local development fallback: LibSQL SQLite
   const client = createClient({
     url: process.env.DATABASE_URL || "file:data/edunexus.db",
   });
