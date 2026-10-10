@@ -1,5 +1,5 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { AwsClient } from "aws4fetch";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export interface PresignedUrlResult {
   uploadUrl: string;
@@ -7,8 +7,6 @@ export interface PresignedUrlResult {
   key: string;
   isDirectR2: boolean;
 }
-
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function getR2Config() {
   let env: Record<string, any> = { ...process.env };
@@ -28,11 +26,11 @@ function getR2Config() {
   const publicDomain = env.R2_PUBLIC_DOMAIN || env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://media.arundigi.in";
 
   return {
-    endpoint,
+    endpoint: endpoint?.replace(/\/$/, ""),
     accessKeyId,
     secretAccessKey,
     bucketName,
-    publicDomain,
+    publicDomain: publicDomain?.replace(/\/$/, ""),
   };
 }
 
@@ -41,26 +39,9 @@ export function isR2Configured(): boolean {
   return Boolean(cfg.endpoint && cfg.accessKeyId && cfg.secretAccessKey && cfg.bucketName);
 }
 
-function getR2Client(): { s3: S3Client; bucketName: string; publicDomain: string } {
-  const cfg = getR2Config();
-  if (!cfg.endpoint || !cfg.accessKeyId || !cfg.secretAccessKey) {
-    throw new Error("Cloudflare R2 credentials are not configured in environment variables");
-  }
-
-  const s3 = new S3Client({
-    region: "auto",
-    endpoint: cfg.endpoint,
-    credentials: {
-      accessKeyId: cfg.accessKeyId,
-      secretAccessKey: cfg.secretAccessKey,
-    },
-  });
-
-  return { s3, bucketName: cfg.bucketName, publicDomain: cfg.publicDomain };
-}
-
 /**
  * Generates an authorization-checked, short-lived presigned PUT URL for Cloudflare R2
+ * Uses edge-compatible aws4fetch (WebCrypto-based, no node fs dependency).
  * Falls back to local direct-PUT handler in local development if R2 credentials are unset.
  */
 export async function createPresignedUploadUrl(
@@ -69,21 +50,31 @@ export async function createPresignedUploadUrl(
   expiresInSeconds: number = 300
 ): Promise<PresignedUrlResult> {
   if (isR2Configured()) {
-    const { s3, bucketName, publicDomain } = getR2Client();
-    const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      ContentType: contentType,
+    const cfg = getR2Config();
+    const aws = new AwsClient({
+      accessKeyId: cfg.accessKeyId!,
+      secretAccessKey: cfg.secretAccessKey!,
+      service: "s3",
+      region: "auto",
     });
 
-    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: expiresInSeconds });
+    // Cloudflare S3 API endpoint format: https://<endpoint>/<bucket>/<key>
+    const targetUrl = `${cfg.endpoint}/${cfg.bucketName}/${key}`;
+    const signedRequest = await aws.sign(
+      new Request(targetUrl, {
+        method: "PUT",
+        headers: { "Content-Type": contentType },
+      }),
+      {
+        aws: { signQuery: true, datetime: new Date().toISOString().replace(/[:-]|\.\d{3}/g, "") },
+      }
+    );
 
-    // Public URL format: configured CDN domain or R2 public dev bucket URL
-    const baseUrl = publicDomain?.replace(/\/$/, "") || `https://${bucketName}.r2.dev`;
-    const fileUrl = `${baseUrl}/${key}`;
+    // Public CDN URL via media.arundigi.in or R2 public URL
+    const fileUrl = `${cfg.publicDomain}/${key}`;
 
     return {
-      uploadUrl,
+      uploadUrl: signedRequest.url,
       fileUrl,
       key,
       isDirectR2: true,
