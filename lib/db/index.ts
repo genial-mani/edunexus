@@ -44,8 +44,10 @@ export function getDb(): any {
   }
 }
 
+type AppDatabase = ReturnType<typeof drizzleLibsql<typeof schema>>;
+
 // Transparent Proxy redirecting all query/mutation methods to the active database
-export const db = new Proxy({} as any, {
+export const db: AppDatabase = new Proxy({} as AppDatabase, {
   get(_target, prop) {
     const activeDb = getDb();
     const value = activeDb[prop];
