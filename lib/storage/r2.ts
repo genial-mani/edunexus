@@ -8,37 +8,55 @@ export interface PresignedUrlResult {
   isDirectR2: boolean;
 }
 
-const R2_ENDPOINT = process.env.R2_ENDPOINT;
-const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
-const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
-const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
-const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "edunexus";
-const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN || process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-function getEndpoint(): string | null {
-  if (R2_ENDPOINT) return R2_ENDPOINT;
-  if (R2_ACCOUNT_ID) return `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-  return null;
+function getR2Config() {
+  let env: Record<string, any> = { ...process.env };
+  try {
+    const ctx = getCloudflareContext();
+    if (ctx?.env) {
+      env = { ...env, ...ctx.env };
+    }
+  } catch {
+    // Outside Cloudflare request scope
+  }
+
+  const endpoint = env.R2_ENDPOINT || (env.R2_ACCOUNT_ID ? `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com` : null);
+  const accessKeyId = env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = env.R2_SECRET_ACCESS_KEY;
+  const bucketName = env.R2_BUCKET_NAME || "edunexus";
+  const publicDomain = env.R2_PUBLIC_DOMAIN || env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://media.arundigi.in";
+
+  return {
+    endpoint,
+    accessKeyId,
+    secretAccessKey,
+    bucketName,
+    publicDomain,
+  };
 }
 
 export function isR2Configured(): boolean {
-  return Boolean(getEndpoint() && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY && R2_BUCKET_NAME);
+  const cfg = getR2Config();
+  return Boolean(cfg.endpoint && cfg.accessKeyId && cfg.secretAccessKey && cfg.bucketName);
 }
 
-function getR2Client(): S3Client {
-  const endpoint = getEndpoint();
-  if (!endpoint || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
+function getR2Client(): { s3: S3Client; bucketName: string; publicDomain: string } {
+  const cfg = getR2Config();
+  if (!cfg.endpoint || !cfg.accessKeyId || !cfg.secretAccessKey) {
     throw new Error("Cloudflare R2 credentials are not configured in environment variables");
   }
 
-  return new S3Client({
+  const s3 = new S3Client({
     region: "auto",
-    endpoint,
+    endpoint: cfg.endpoint,
     credentials: {
-      accessKeyId: R2_ACCESS_KEY_ID,
-      secretAccessKey: R2_SECRET_ACCESS_KEY,
+      accessKeyId: cfg.accessKeyId,
+      secretAccessKey: cfg.secretAccessKey,
     },
   });
+
+  return { s3, bucketName: cfg.bucketName, publicDomain: cfg.publicDomain };
 }
 
 /**
@@ -51,9 +69,9 @@ export async function createPresignedUploadUrl(
   expiresInSeconds: number = 300
 ): Promise<PresignedUrlResult> {
   if (isR2Configured()) {
-    const s3 = getR2Client();
+    const { s3, bucketName, publicDomain } = getR2Client();
     const command = new PutObjectCommand({
-      Bucket: R2_BUCKET_NAME,
+      Bucket: bucketName,
       Key: key,
       ContentType: contentType,
     });
@@ -61,7 +79,7 @@ export async function createPresignedUploadUrl(
     const uploadUrl = await getSignedUrl(s3, command, { expiresIn: expiresInSeconds });
 
     // Public URL format: configured CDN domain or R2 public dev bucket URL
-    const baseUrl = R2_PUBLIC_DOMAIN?.replace(/\/$/, "") || `https://${R2_BUCKET_NAME}.r2.dev`;
+    const baseUrl = publicDomain?.replace(/\/$/, "") || `https://${bucketName}.r2.dev`;
     const fileUrl = `${baseUrl}/${key}`;
 
     return {
