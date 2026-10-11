@@ -1,6 +1,7 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db, schema } from "@/lib/db";
-import { eq, desc, and, like, or, gte } from "drizzle-orm";
+import { eq, desc, and, like, or } from "drizzle-orm";
 import {
   Briefcase,
   Building2,
@@ -11,15 +12,23 @@ import {
   ShieldCheck,
   IndianRupee,
   Clock,
-  Sparkles,
+  Compass,
   X,
 } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Find Teaching Jobs & Faculty Vacancies",
+  description:
+    "Browse verified teaching jobs, school faculty openings, principal and lecturer positions across India on EduNexus.",
+};
 
 interface PageProps {
   searchParams: Promise<{
     q?: string;
     location?: string;
+    district?: string;
+    state?: string;
     type?: string;
     subject?: string;
   }>;
@@ -31,10 +40,12 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = params.q?.trim() || "";
   const location = params.location?.trim() || "";
+  const district = params.district?.trim() || "";
+  const state = params.state?.trim() || "";
   const employmentType = params.type || "";
   const subject = params.subject || "";
 
-  // Query jobs with institute info
+  // Query jobs with institute info and address fields
   const jobs = await db
     .select({
       id: schema.jobVacancies.id,
@@ -49,6 +60,9 @@ export default async function JobsPage({ searchParams }: PageProps) {
       salaryMax: schema.jobVacancies.salaryMax,
       locationCity: schema.jobVacancies.locationCity,
       locationState: schema.jobVacancies.locationState,
+      district: schema.jobVacancies.district,
+      mandal: schema.jobVacancies.mandal,
+      pincode: schema.jobVacancies.pincode,
       applicationDeadline: schema.jobVacancies.applicationDeadline,
       createdAt: schema.jobVacancies.createdAt,
       instituteName: schema.institutes.name,
@@ -62,18 +76,28 @@ export default async function JobsPage({ searchParams }: PageProps) {
       and(
         eq(schema.jobVacancies.status, "published"),
         q ? or(like(schema.jobVacancies.title, `%${q}%`), like(schema.jobVacancies.description, `%${q}%`)) : undefined,
-        location ? or(like(schema.jobVacancies.locationCity, `%${location}%`), like(schema.jobVacancies.locationState, `%${location}%`)) : undefined,
+        location
+          ? or(
+              like(schema.jobVacancies.locationCity, `%${location}%`),
+              like(schema.jobVacancies.locationState, `%${location}%`),
+              like(schema.jobVacancies.district, `%${location}%`),
+              like(schema.jobVacancies.mandal, `%${location}%`),
+              like(schema.jobVacancies.pincode, `%${location}%`)
+            )
+          : undefined,
+        district ? like(schema.jobVacancies.district, `%${district}%`) : undefined,
+        state ? like(schema.jobVacancies.locationState, `%${state}%`) : undefined,
         employmentType ? eq(schema.jobVacancies.employmentType, employmentType as any) : undefined,
         subject ? like(schema.jobVacancies.requiredSubjects, `%${subject}%`) : undefined
       )
     )
     .orderBy(desc(schema.jobVacancies.createdAt));
 
-  const hasFilters = Boolean(q || location || employmentType || subject);
+  const hasFilters = Boolean(q || location || district || state || employmentType || subject);
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header Banner */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8F0] shadow-sm">
           <div className="max-w-3xl space-y-3">
@@ -85,7 +109,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
               Explore Verified Teaching Vacancies
             </h1>
             <p className="text-sm sm:text-base text-[#475569]">
-              Discover teaching opportunities in top CBSE, ICSE, and Degree colleges. Filter by location, subject, and employment preferences.
+              Discover teaching opportunities in top CBSE, ICSE, and Degree colleges. Filter by location, district, subject, and employment preferences.
             </p>
           </div>
 
@@ -108,7 +132,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 type="text"
                 name="location"
                 defaultValue={location}
-                placeholder="City, District, or State"
+                placeholder="City, District, Mandal, or State"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
               />
             </div>
@@ -131,6 +155,14 @@ export default async function JobsPage({ searchParams }: PageProps) {
               )}
             </div>
           </form>
+
+          {/* Hyper-Local Address Callout Notice */}
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+            <Compass className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps candidates discover hyper-local relevant results.
+            </span>
+          </div>
         </div>
 
         {/* Filters & Results Layout */}
@@ -150,6 +182,25 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 )}
               </div>
 
+              {/* District Filter Quick Search */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  District / Region
+                </span>
+                <form method="GET" action="/jobs" className="relative">
+                  {q && <input type="hidden" name="q" value={q} />}
+                  {employmentType && <input type="hidden" name="type" value={employmentType} />}
+                  {subject && <input type="hidden" name="subject" value={subject} />}
+                  <input
+                    type="text"
+                    name="district"
+                    defaultValue={district}
+                    placeholder="e.g. Guntur, Bengaluru..."
+                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-xs text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
+                  />
+                </form>
+              </div>
+
               {/* Employment Type */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
@@ -162,6 +213,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
                       href={`/jobs?${new URLSearchParams({
                         ...(q ? { q } : {}),
                         ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
                         ...(subject ? { subject } : {}),
                         ...(employmentType === t ? {} : { type: t }),
                       }).toString()}`}
@@ -189,6 +241,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
                       href={`/jobs?${new URLSearchParams({
                         ...(q ? { q } : {}),
                         ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
                         ...(employmentType ? { type: employmentType } : {}),
                         ...(subject === s ? {} : { subject: s }),
                       }).toString()}`}
@@ -235,6 +288,13 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 {jobs.map((job) => {
                   const subjects = JSON.parse(job.requiredSubjects || "[]");
                   const grades = JSON.parse(job.gradeLevels || "[]");
+                  const locationParts = [
+                    job.locationCity,
+                    job.mandal,
+                    job.district,
+                    job.locationState,
+                    job.pincode,
+                  ].filter(Boolean);
 
                   return (
                     <div
@@ -278,11 +338,11 @@ export default async function JobsPage({ searchParams }: PageProps) {
                           </div>
                         </div>
 
-                        {/* Metadata row */}
+                        {/* Metadata row with Granular Address */}
                         <div className="flex flex-wrap items-center gap-4 text-xs text-[#475569]">
-                          <span className="flex items-center gap-1.5">
+                          <span className="flex items-center gap-1.5 font-medium text-slate-700">
                             <MapPin className="w-4 h-4 text-[#65A88A]" />
-                            {job.locationCity}, {job.locationState}
+                            {locationParts.join(", ")}
                           </span>
                           {job.salaryMin && job.salaryMax && (
                             <span className="flex items-center gap-1 font-bold text-[#163B32]">

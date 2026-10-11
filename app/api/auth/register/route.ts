@@ -4,6 +4,7 @@ import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "@/lib/auth/passwords";
 import { createSession } from "@/lib/auth/session";
+import { authRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Full name or representative name is required"),
@@ -15,6 +16,9 @@ const registerSchema = z.object({
   instituteType: z.enum(["School", "College", "Junior College", "Coaching Centre", "Other"]).optional(),
   city: z.string().optional(),
   state: z.string().optional(),
+  district: z.string().optional(),
+  mandal: z.string().optional(),
+  pincode: z.string().optional(),
   contactPhone: z.string().optional(),
 });
 
@@ -30,6 +34,26 @@ function slugify(text: string): string {
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const rateCheck = authRateLimiter.check(`register:${clientIp}`);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Too many registration attempts. Please wait a moment and try again.",
+          retryAfter: rateCheck.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.reset),
+            "X-RateLimit-Limit": String(rateCheck.limit),
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
 
@@ -40,7 +64,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password, role, instituteName, instituteType, city, state, contactPhone } = parsed.data;
+    const {
+      name,
+      email,
+      password,
+      role,
+      instituteName,
+      instituteType,
+      city,
+      state,
+      district,
+      mandal,
+      pincode,
+      contactPhone,
+    } = parsed.data;
     const cleanEmail = email.toLowerCase().trim();
 
     // Check if email already registered
@@ -84,6 +121,9 @@ export async function POST(request: Request) {
         email: cleanEmail,
         city: city?.trim() || null,
         state: state?.trim() || null,
+        district: district?.trim() || null,
+        mandal: mandal?.trim() || null,
+        pincode: pincode?.trim() || null,
         isOpenToWork: 1,
         isPublic: 1,
         isPhoneVisible: 0,
@@ -109,6 +149,9 @@ export async function POST(request: Request) {
         type: instituteType || "School",
         city: city?.trim() || "Bengaluru",
         state: state?.trim() || "Karnataka",
+        district: district?.trim() || null,
+        mandal: mandal?.trim() || null,
+        postalCode: pincode?.trim() || null,
         officialEmail: cleanEmail,
         contactPhone: contactPhone?.trim() || "+91 00000 00000",
         verificationStatus: "pending",

@@ -32,8 +32,11 @@ export const teacherProfiles = sqliteTable("teacher_profiles", {
   email: text("email").notNull(),
   phone: text("phone"),
   isPhoneVisible: integer("is_phone_visible").notNull().default(0), // If 0, stripped completely before response
-  city: text("city"),
+  city: text("city"), // City / Village
   state: text("state"),
+  district: text("district"),
+  mandal: text("mandal"),
+  pincode: text("pincode"),
   preferredLocations: text("preferred_locations"), // JSON array
   highestQualification: text("highest_qualification"),
   degrees: text("degrees"), // JSON array of qualifications/certifications
@@ -66,6 +69,8 @@ export const institutes = sqliteTable("institutes", {
   address: text("address"),
   city: text("city").notNull(),
   state: text("state").notNull(),
+  district: text("district"),
+  mandal: text("mandal"),
   postalCode: text("postal_code"),
   officialEmail: text("official_email").notNull(),
   contactPhone: text("contact_phone").notNull(),
@@ -105,6 +110,9 @@ export const jobVacancies = sqliteTable("job_vacancies", {
   salaryNegotiable: integer("salary_negotiable").notNull().default(1),
   locationCity: text("location_city").notNull(),
   locationState: text("location_state").notNull(),
+  district: text("district"),
+  mandal: text("mandal"),
+  pincode: text("pincode"),
   applicationDeadline: integer("application_deadline"),
   expectedJoiningDate: text("expected_joining_date"),
   benefits: text("benefits").default("[]"), // JSON array
@@ -155,6 +163,9 @@ export const busListings = sqliteTable("bus_listings", {
   previousOwners: integer("previous_owners").notNull().default(1),
   locationCity: text("location_city").notNull(),
   locationState: text("location_state").notNull(),
+  district: text("district"),
+  mandal: text("mandal"),
+  pincode: text("pincode"),
   description: text("description").notNull(),
   maintenanceInfo: text("maintenance_info"),
   primaryImageUrl: text("primary_image_url"),

@@ -4,6 +4,7 @@ import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { verifyPassword } from "@/lib/auth/passwords";
 import { createSession } from "@/lib/auth/session";
+import { authRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   email: z.string().email("Please provide a valid email address"),
@@ -12,6 +13,26 @@ const loginSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const rateCheck = authRateLimiter.check(`login:${clientIp}`);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Too many login attempts. Please wait a minute and try again.",
+          retryAfter: rateCheck.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.reset),
+            "X-RateLimit-Limit": String(rateCheck.limit),
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
 

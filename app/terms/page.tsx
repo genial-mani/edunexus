@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service — Legal Terms for Educators & Institutions",
+  description:
+    "Terms and conditions governing the use of EduNexus educational recruitment and institutional marketplace services.",
+};
+
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-12">

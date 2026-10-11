@@ -1,5 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { GraduationCap, ShieldCheck, Users, Building2, Bus, Heart, Sparkles, ArrowRight } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "About Us — Bridging Excellence in Education",
+  description:
+    "Learn how EduNexus connects accredited schools with qualified educators and simplifies institutional school bus fleet marketplace in India.",
+};
 
 export default function AboutPage() {
   return (

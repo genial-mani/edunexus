@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db, schema } from "@/lib/db";
 import { eq, desc, and, like, or } from "drizzle-orm";
 import {
@@ -7,19 +8,25 @@ import {
   MapPin,
   Filter,
   ArrowRight,
-  ShieldCheck,
   Building2,
   X,
   Gauge,
-  Fuel,
-  Calendar,
+  Compass,
 } from "lucide-react";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "School Buses & Transport Vans for Sale / Lease",
+  description:
+    "Verified marketplace for institutional school buses, minibuses, and student transport vehicles across India listed by verified schools and colleges.",
+};
 
 interface PageProps {
   searchParams: Promise<{
     q?: string;
     location?: string;
+    district?: string;
+    state?: string;
     maker?: string;
     fuel?: string;
     condition?: string;
@@ -32,6 +39,8 @@ export default async function BusesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = params.q?.trim() || "";
   const location = params.location?.trim() || "";
+  const district = params.district?.trim() || "";
+  const state = params.state?.trim() || "";
   const maker = params.maker?.trim() || "";
   const fuel = params.fuel?.trim() || "";
   const condition = params.condition?.trim() || "";
@@ -52,6 +61,9 @@ export default async function BusesPage({ searchParams }: PageProps) {
       vehicleCondition: schema.busListings.vehicleCondition,
       locationCity: schema.busListings.locationCity,
       locationState: schema.busListings.locationState,
+      district: schema.busListings.district,
+      mandal: schema.busListings.mandal,
+      pincode: schema.busListings.pincode,
       primaryImageUrl: schema.busListings.primaryImageUrl,
       createdAt: schema.busListings.createdAt,
       instituteName: schema.institutes.name,
@@ -74,9 +86,14 @@ export default async function BusesPage({ searchParams }: PageProps) {
           ? or(
               like(schema.busListings.locationCity, `%${location}%`),
               like(schema.busListings.locationState, `%${location}%`),
+              like(schema.busListings.district, `%${location}%`),
+              like(schema.busListings.mandal, `%${location}%`),
+              like(schema.busListings.pincode, `%${location}%`),
               like(schema.busListings.registrationState, `%${location}%`)
             )
           : undefined,
+        district ? like(schema.busListings.district, `%${district}%`) : undefined,
+        state ? like(schema.busListings.locationState, `%${state}%`) : undefined,
         maker ? eq(schema.busListings.manufacturer, maker) : undefined,
         fuel ? eq(schema.busListings.fuelType, fuel as any) : undefined,
         condition ? eq(schema.busListings.vehicleCondition, condition as any) : undefined
@@ -84,11 +101,11 @@ export default async function BusesPage({ searchParams }: PageProps) {
     )
     .orderBy(desc(schema.busListings.createdAt));
 
-  const hasFilters = Boolean(q || location || maker || fuel || condition);
+  const hasFilters = Boolean(q || location || district || state || maker || fuel || condition);
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Banner */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8F0] shadow-sm">
           <div className="max-w-3xl space-y-3">
@@ -100,7 +117,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
               School Buses for Sale by Educational Institutions
             </h1>
             <p className="text-sm sm:text-base text-[#475569]">
-              Buy or sell school transport equipment directly between verified schools and colleges. Tata, Eicher, Ashok Leyland, and Force Traveller buses with full maintenance records.
+              Buy and sell certified school buses, minibuses, and passenger vans directly between schools and fleet managers with transparent condition verification.
             </p>
           </div>
 
@@ -112,7 +129,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
                 type="text"
                 name="q"
                 defaultValue={q}
-                placeholder="Bus model or manufacturer (e.g. Tata Starbus, 40-seater)"
+                placeholder="Make, model (e.g. Tata Starbus, Eicher)"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
               />
             </div>
@@ -123,7 +140,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
                 type="text"
                 name="location"
                 defaultValue={location}
-                placeholder="City, State, or RTO Registration"
+                placeholder="City, District, Mandal, or State"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
               />
             </div>
@@ -133,7 +150,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
                 type="submit"
                 className="w-full py-2.5 px-4 rounded-xl font-medium text-sm text-white bg-[#163B32] hover:bg-[#122f28] transition shadow-sm cursor-pointer"
               >
-                Find Buses
+                Search Buses
               </button>
               {hasFilters && (
                 <Link
@@ -146,17 +163,25 @@ export default async function BusesPage({ searchParams }: PageProps) {
               )}
             </div>
           </form>
+
+          {/* Hyper-Local Address Callout Notice */}
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+            <Compass className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps institutions find nearby available buses with minimal transport inspection distance.
+            </span>
+          </div>
         </div>
 
-        {/* Content Layout */}
+        {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Filters */}
+          {/* Filters Column */}
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-bold text-sm text-[#163B32] flex items-center gap-2">
                   <Filter className="w-4 h-4 text-[#65A88A]" />
-                  <span>Filter Vehicles</span>
+                  <span>Filter Fleet</span>
                 </h3>
                 {hasFilters && (
                   <Link href="/buses" className="text-xs text-[#65A88A] hover:underline">
@@ -165,18 +190,38 @@ export default async function BusesPage({ searchParams }: PageProps) {
                 )}
               </div>
 
+              {/* District Filter Quick Search */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  District / Region
+                </span>
+                <form method="GET" action="/buses" className="relative">
+                  {q && <input type="hidden" name="q" value={q} />}
+                  {maker && <input type="hidden" name="maker" value={maker} />}
+                  {fuel && <input type="hidden" name="fuel" value={fuel} />}
+                  <input
+                    type="text"
+                    name="district"
+                    defaultValue={district}
+                    placeholder="e.g. Guntur, Bengaluru..."
+                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-xs text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
+                  />
+                </form>
+              </div>
+
               {/* Manufacturer */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
                   Manufacturer
                 </span>
                 <div className="space-y-1.5 text-xs">
-                  {["Tata", "Eicher", "Ashok Leyland", "Force Motors"].map((m) => (
+                  {["Tata Motors", "Ashok Leyland", "Eicher Motors", "Force Motors", "Swaraj Mazda"].map((m) => (
                     <Link
                       key={m}
                       href={`/buses?${new URLSearchParams({
                         ...(q ? { q } : {}),
                         ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
                         ...(fuel ? { fuel } : {}),
                         ...(condition ? { condition } : {}),
                         ...(maker === m ? {} : { maker: m }),
@@ -205,6 +250,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
                       href={`/buses?${new URLSearchParams({
                         ...(q ? { q } : {}),
                         ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
                         ...(maker ? { maker } : {}),
                         ...(condition ? { condition } : {}),
                         ...(fuel === f ? {} : { fuel: f }),
@@ -220,34 +266,6 @@ export default async function BusesPage({ searchParams }: PageProps) {
                   ))}
                 </div>
               </div>
-
-              {/* Condition */}
-              <div className="space-y-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
-                  Condition
-                </span>
-                <div className="space-y-1.5 text-xs">
-                  {["Excellent", "Good", "Fair"].map((c) => (
-                    <Link
-                      key={c}
-                      href={`/buses?${new URLSearchParams({
-                        ...(q ? { q } : {}),
-                        ...(location ? { location } : {}),
-                        ...(maker ? { maker } : {}),
-                        ...(fuel ? { fuel } : {}),
-                        ...(condition === c ? {} : { condition: c }),
-                      }).toString()}`}
-                      className={`block px-3 py-2 rounded-lg transition ${
-                        condition === c
-                          ? "bg-[#163B32] text-white font-medium"
-                          : "text-[#475569] hover:bg-[#F7F5EF] hover:text-[#163B32]"
-                      }`}
-                    >
-                      {c} Condition
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
@@ -255,7 +273,7 @@ export default async function BusesPage({ searchParams }: PageProps) {
           <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between text-xs text-[#475569] px-1">
               <span>
-                Found <strong className="text-[#163B32]">{buses.length}</strong> school buses listed for sale
+                Showing <strong className="text-[#163B32]">{buses.length}</strong> available vehicles
               </span>
             </div>
 
@@ -264,9 +282,9 @@ export default async function BusesPage({ searchParams }: PageProps) {
                 <div className="w-12 h-12 rounded-full bg-[#F7F5EF] text-[#163B32] flex items-center justify-center mx-auto">
                   <Bus className="w-6 h-6 text-[#65A88A]" />
                 </div>
-                <h3 className="font-bold text-lg text-[#163B32]">No school buses matching criteria</h3>
+                <h3 className="font-bold text-lg text-[#163B32]">No vehicles found</h3>
                 <p className="text-sm text-[#475569] max-w-sm mx-auto">
-                  Try adjusting fuel type or manufacturer filters.
+                  Try adjusting manufacturer filter or clearing search criteria.
                 </p>
                 <Link
                   href="/buses"
@@ -277,71 +295,81 @@ export default async function BusesPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {buses.map((bus) => (
-                  <Link
-                    key={bus.id}
-                    href={`/buses/${bus.id}`}
-                    className="rounded-2xl bg-white border border-[#E2E8F0] overflow-hidden shadow-sm hover:shadow-md hover:border-[#65A88A] transition-all group flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
-                        <img
-                          src={bus.primaryImageUrl || "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800"}
-                          alt={bus.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute top-2.5 left-2.5 bg-[#163B32]/90 backdrop-blur-sm text-white px-2.5 py-0.5 rounded text-xs font-semibold">
-                          {bus.manufacturingYear}
+                {buses.map((bus) => {
+                  const locationParts = [
+                    bus.locationCity,
+                    bus.mandal,
+                    bus.district,
+                    bus.locationState,
+                    bus.pincode,
+                  ].filter(Boolean);
+
+                  return (
+                    <Link
+                      key={bus.id}
+                      href={`/buses/${bus.id}`}
+                      className="rounded-2xl bg-white border border-[#E2E8F0] overflow-hidden shadow-sm hover:shadow-md hover:border-[#65A88A] transition-all group flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                          <img
+                            src={bus.primaryImageUrl || "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800"}
+                            alt={bus.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute top-2.5 left-2.5 bg-[#163B32]/90 backdrop-blur-sm text-white px-2.5 py-0.5 rounded text-xs font-semibold">
+                            {bus.manufacturingYear}
+                          </div>
+                          <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm text-[#163B32] px-2.5 py-0.5 rounded text-xs font-bold shadow-sm">
+                            {formatCurrency(bus.askingPrice)}
+                          </div>
                         </div>
-                        <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm text-[#163B32] px-2.5 py-0.5 rounded text-xs font-bold shadow-sm">
-                          {formatCurrency(bus.askingPrice)}
+
+                        <div className="p-4 space-y-2.5">
+                          <h2 className="font-bold text-sm text-[#163B32] group-hover:text-[#65A88A] transition-colors line-clamp-2">
+                            {bus.title}
+                          </h2>
+
+                          <div className="grid grid-cols-3 gap-1.5 py-1 text-center bg-[#F7F5EF] p-2 rounded-xl text-xs text-[#163B32]">
+                            <div>
+                              <span className="text-[10px] text-[#475569] block">Seats</span>
+                              <span className="font-bold">{bus.seatingCapacity}</span>
+                            </div>
+                            <div className="border-x border-[#E2E8F0]">
+                              <span className="text-[10px] text-[#475569] block">Fuel</span>
+                              <span className="font-bold">{bus.fuelType}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-[#475569] block">Status</span>
+                              <span className="font-bold">{bus.vehicleCondition}</span>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-[#475569] space-y-1 pt-1">
+                            <p className="flex items-center gap-1">
+                              <Gauge className="w-3.5 h-3.5 text-[#65A88A]" />
+                              {bus.odometerKms.toLocaleString("en-IN")} Kms on Odometer
+                            </p>
+                            <p className="flex items-center gap-1 truncate">
+                              <Building2 className="w-3.5 h-3.5 text-[#65A88A] shrink-0" />
+                              <span>{bus.instituteName}</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="p-4 space-y-2.5">
-                        <h2 className="font-bold text-sm text-[#163B32] group-hover:text-[#65A88A] transition-colors line-clamp-2">
-                          {bus.title}
-                        </h2>
-
-                        <div className="grid grid-cols-3 gap-1.5 py-1 text-center bg-[#F7F5EF] p-2 rounded-xl text-xs text-[#163B32]">
-                          <div>
-                            <span className="text-[10px] text-[#475569] block">Seats</span>
-                            <span className="font-bold">{bus.seatingCapacity}</span>
-                          </div>
-                          <div className="border-x border-[#E2E8F0]">
-                            <span className="text-[10px] text-[#475569] block">Fuel</span>
-                            <span className="font-bold">{bus.fuelType}</span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-[#475569] block">Status</span>
-                            <span className="font-bold">{bus.vehicleCondition}</span>
-                          </div>
-                        </div>
-
-                        <div className="text-xs text-[#475569] space-y-1 pt-1">
-                          <p className="flex items-center gap-1">
-                            <Gauge className="w-3.5 h-3.5 text-[#65A88A]" />
-                            {bus.odometerKms.toLocaleString("en-IN")} Kms on Odometer
-                          </p>
-                          <p className="flex items-center gap-1 truncate">
-                            <Building2 className="w-3.5 h-3.5 text-[#65A88A] shrink-0" />
-                            <span>{bus.instituteName}</span>
-                          </p>
-                        </div>
+                      <div className="px-4 py-2.5 border-t border-[#E2E8F0] bg-[#F8FAF7] flex items-center justify-between text-xs text-[#475569]">
+                        <span className="flex items-center gap-1 font-medium text-slate-700 truncate mr-2">
+                          <MapPin className="w-3.5 h-3.5 text-[#65A88A] shrink-0" />
+                          <span className="truncate">{locationParts.join(", ")}</span>
+                        </span>
+                        <span className="font-semibold text-[#163B32] group-hover:text-[#65A88A] flex items-center shrink-0">
+                          View <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
                       </div>
-                    </div>
-
-                    <div className="px-4 py-2.5 border-t border-[#E2E8F0] bg-[#F8FAF7] flex items-center justify-between text-xs text-[#475569]">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#65A88A]" />
-                        {bus.locationCity}, {bus.locationState}
-                      </span>
-                      <span className="font-semibold text-[#163B32] group-hover:text-[#65A88A] flex items-center">
-                        View <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

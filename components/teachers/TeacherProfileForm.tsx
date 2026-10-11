@@ -28,6 +28,9 @@ interface TeacherProfileFormProps {
     isPhoneVisible: number;
     city: string | null;
     state: string | null;
+    district?: string | null;
+    mandal?: string | null;
+    pincode?: string | null;
     highestQualification: string | null;
     subjects: string[];
     gradeLevels: string[];
@@ -61,6 +64,9 @@ export default function TeacherProfileForm({ initialProfile }: TeacherProfileFor
   const [isPhoneVisible, setIsPhoneVisible] = useState(initialProfile.isPhoneVisible);
   const [city, setCity] = useState(initialProfile.city || "");
   const [state, setState] = useState(initialProfile.state || "");
+  const [district, setDistrict] = useState(initialProfile.district || "");
+  const [mandal, setMandal] = useState(initialProfile.mandal || "");
+  const [pincode, setPincode] = useState(initialProfile.pincode || "");
   const [highestQualification, setHighestQualification] = useState(initialProfile.highestQualification || "");
   const [yearsOfExperience, setYearsOfExperience] = useState(initialProfile.yearsOfExperience || 0);
   const [employmentTypePref, setEmploymentTypePref] = useState(initialProfile.employmentTypePref || "Full-time");
@@ -135,6 +141,9 @@ export default function TeacherProfileForm({ initialProfile }: TeacherProfileFor
         isPhoneVisible,
         city,
         state,
+        district: district || null,
+        mandal: mandal || null,
+        pincode: pincode || null,
         highestQualification,
         subjects,
         gradeLevels,
@@ -308,16 +317,24 @@ export default function TeacherProfileForm({ initialProfile }: TeacherProfileFor
           />
         </div>
 
+        {/* Hyper-Local Address Callout Notice */}
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
+          <span className="text-base shrink-0">📍</span>
+          <span>
+            <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps institutions find nearby qualified educators quickly and send interview invitations.
+          </span>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
-              Current City
+              Current City / Village
             </label>
             <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g. Bengaluru"
+              placeholder="e.g. Vijayawada"
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] bg-white hover:border-[#65A88A] transition"
             />
           </div>
@@ -330,7 +347,49 @@ export default function TeacherProfileForm({ initialProfile }: TeacherProfileFor
               type="text"
               value={state}
               onChange={(e) => setState(e.target.value)}
-              placeholder="e.g. Karnataka"
+              placeholder="e.g. Andhra Pradesh"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] bg-white hover:border-[#65A88A] transition"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              District
+            </label>
+            <input
+              type="text"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              placeholder="e.g. Krishna / Guntur"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] bg-white hover:border-[#65A88A] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              Mandal / Tehsil
+            </label>
+            <input
+              type="text"
+              value={mandal}
+              onChange={(e) => setMandal(e.target.value)}
+              placeholder="e.g. Tenali / Gannavaram"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] bg-white hover:border-[#65A88A] transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              PIN Code
+            </label>
+            <input
+              type="text"
+              maxLength={6}
+              value={pincode}
+              onChange={(e) => setPincode(e.target.value)}
+              placeholder="e.g. 520001"
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] bg-white hover:border-[#65A88A] transition"
             />
           </div>

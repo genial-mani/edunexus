@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#042F2E" />
+      <stop offset="50%" stop-color="#0F766E" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+
+  <!-- Subtle geometric grid pattern -->
+  <g opacity="0.08" stroke="#34D399" stroke-width="1.5">
+    <line x1="0" y1="100" x2="1200" y2="100" />
+    <line x1="0" y1="200" x2="1200" y2="200" />
+    <line x1="0" y1="300" x2="1200" y2="300" />
+    <line x1="0" y1="400" x2="1200" y2="400" />
+    <line x1="0" y1="500" x2="1200" y2="500" />
+    <line x1="200" y1="0" x2="200" y2="630" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="600" y1="0" x2="600" y2="630" />
+    <line x1="800" y1="0" x2="800" y2="630" />
+    <line x1="1000" y1="0" x2="1000" y2="630" />
+  </g>
+
+  <!-- Brand Card Container -->
+  <rect x="80" y="60" width="1040" height="510" rx="28" fill="#042F2E" fill-opacity="0.75" stroke="#34D399" stroke-opacity="0.25" stroke-width="2" filter="url(#shadow)" />
+
+  <!-- Top Logo Section -->
+  <g transform="translate(130, 110)">
+    <!-- Crest Icon -->
+    <rect width="64" height="64" rx="16" fill="#0F766E" stroke="#34D399" stroke-width="2" />
+    <path d="M32 16L52 25L32 34L12 25L32 16Z" fill="#34D399" />
+    <path d="M48 27V36C48 38 45 39 45 39" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <circle cx="45" cy="40" r="1.5" fill="#FCD34D" />
+    <path d="M18 33C23 31 28 32 32 36C36 32 41 31 46 33V44C41 42 36 43 32 47C28 43 23 42 18 44V33Z" fill="#FFFFFF" />
+
+    <!-- Brand Name -->
+    <text x="84" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Edu<tspan fill="#34D399">Nexus</tspan></text>
+    <text x="86" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#A7F3D0" letter-spacing="1">EDUCATION RECRUITMENT &amp; LOGISTICS PLATFORM</text>
+  </g>
+
+  <!-- Pill Tag -->
+  <rect x="130" y="215" width="460" height="34" rx="17" fill="#34D399" fill-opacity="0.12" stroke="#34D399" stroke-opacity="0.4" stroke-width="1.5" />
+  <text x="146" y="238" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#34D399">✦ INDIA'S DEDICATED INSTITUTIONAL PLATFORM</text>
+
+  <!-- Big Headline -->
+  <text x="130" y="310" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="#FFFFFF" letter-spacing="-1">Connecting Schools, Teachers</text>
+  <text x="130" y="370" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="#34D399" letter-spacing="-1">&amp; School Transport Fleets</text>
+
+  <text x="130" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400" fill="#D1FAE5">Discover verified faculty vacancies, hire qualified teachers, and trade school buses seamlessly.</text>
+
+  <!-- Feature Pills Footer -->
+  <line x1="130" y1="465" x2="1070" y2="465" stroke="#34D399" stroke-opacity="0.2" stroke-width="1.5" />
+
+  <text x="130" y="515" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#E6F4EA">🏫 5,000+ Verified Schools</text>
+  <text x="440" y="515" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#E6F4EA">👩‍🏫 25,000+ Active Educators</text>
+  <text x="760" y="515" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#34D399" font-weight="700">🌐 edunexus.arundigi.in</text>
+</svg>

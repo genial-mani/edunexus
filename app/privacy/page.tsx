@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — Teacher Data Protection & DPDP Compliance",
+  description:
+    "Review EduNexus privacy practices, teacher resume data confidentiality, and institutional data protection guidelines.",
+};
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-12">

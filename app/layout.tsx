@@ -17,6 +17,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://edunexus.arundigi.in"),
   title: {
     default: "EduNexus — Education Recruitment & Institutional Marketplace",
     template: "%s | EduNexus",
@@ -31,8 +32,60 @@ export const metadata: Metadata = {
     "education marketplace",
     "CBSE teachers",
     "ICSE schools",
+    "faculty vacancies India",
   ],
-  authors: [{ name: "EduNexus" }],
+  authors: [{ name: "EduNexus", url: "https://edunexus.arundigi.in" }],
+  creator: "EduNexus",
+  publisher: "EduNexus",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://edunexus.arundigi.in",
+    siteName: "EduNexus",
+    title: "EduNexus — Education Recruitment & Institutional Marketplace",
+    description:
+      "India's leading platform connecting verified schools, colleges, talented teachers open to work, and school bus marketplace.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "EduNexus Educational Marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EduNexus — Education Recruitment & Institutional Marketplace",
+    description:
+      "India's leading platform connecting verified schools, colleges, talented teachers open to work, and school bus marketplace.",
+    images: ["/og-image.png"],
+    creator: "@edunexus_in",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/icon.svg",
+  },
+  verification: {
+    google: "google-site-verification=edunexus-verify-arundigi",
+  },
 };
 
 export default async function RootLayout({

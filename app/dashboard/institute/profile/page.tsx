@@ -23,6 +23,8 @@ export default async function InstituteProfilePage() {
     address: inst.address || null,
     city: inst.city,
     state: inst.state,
+    district: inst.district || null,
+    mandal: inst.mandal || null,
     postalCode: inst.postalCode || null,
     contactPhone: inst.contactPhone,
     officialEmail: inst.officialEmail,

@@ -73,6 +73,9 @@ export default function VacancyForm({
   const [salaryMax, setSalaryMax] = useState<string>("");
   const [locationCity, setLocationCity] = useState(defaultCity);
   const [locationState, setLocationState] = useState(defaultState);
+  const [district, setDistrict] = useState("");
+  const [mandal, setMandal] = useState("");
+  const [pincode, setPincode] = useState("");
   const [expectedJoiningDate, setExpectedJoiningDate] = useState("Immediate");
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([
     "Health & Accident Insurance",
@@ -152,6 +155,9 @@ export default function VacancyForm({
         salaryNegotiable: 1,
         locationCity,
         locationState,
+        district: district || null,
+        mandal: mandal || null,
+        pincode: pincode || null,
         expectedJoiningDate,
         benefits: selectedBenefits,
         contactInstructions,
@@ -481,16 +487,25 @@ export default function VacancyForm({
               </div>
             </div>
 
+            {/* Hyper-Local Address Callout Notice */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
+              <span className="text-base shrink-0">📍</span>
+              <span>
+                <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps candidates discover hyper-local relevant openings and calculate transit distances accurately.
+              </span>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
-                  Campus City *
+                  Campus City / Village *
                 </label>
                 <input
                   type="text"
                   required
                   value={locationCity}
                   onChange={(e) => setLocationCity(e.target.value)}
+                  placeholder="e.g. Vijayawada"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
                 />
               </div>
@@ -504,6 +519,49 @@ export default function VacancyForm({
                   required
                   value={locationState}
                   onChange={(e) => setLocationState(e.target.value)}
+                  placeholder="e.g. Andhra Pradesh"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+                  District
+                </label>
+                <input
+                  type="text"
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  placeholder="e.g. Guntur / Krishna"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+                  Mandal / Tehsil
+                </label>
+                <input
+                  type="text"
+                  value={mandal}
+                  onChange={(e) => setMandal(e.target.value)}
+                  placeholder="e.g. Tenali / Mangalagiri"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+                  PIN Code
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  placeholder="e.g. 522001"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
                 />
               </div>

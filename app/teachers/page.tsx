@@ -1,23 +1,31 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db, schema } from "@/lib/db";
-import { eq, desc, and, like, or, gte } from "drizzle-orm";
+import { eq, desc, and, like, or } from "drizzle-orm";
 import {
   Users,
   Search,
   MapPin,
-  GraduationCap,
   Briefcase,
   Sparkles,
   ArrowRight,
   Filter,
   X,
-  Languages,
+  Compass,
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Discover Qualified Teachers & Educators Open to Work",
+  description:
+    "Connect directly with verified school teachers, subject specialists, and educators actively seeking full-time and part-time positions across India.",
+};
 
 interface PageProps {
   searchParams: Promise<{
     q?: string;
     location?: string;
+    district?: string;
+    state?: string;
     subject?: string;
   }>;
 }
@@ -28,9 +36,11 @@ export default async function TeachersPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = params.q?.trim() || "";
   const location = params.location?.trim() || "";
+  const district = params.district?.trim() || "";
+  const state = params.state?.trim() || "";
   const subject = params.subject?.trim() || "";
 
-  // Query teachers who are Open to Work and Public
+  // Query teachers who are Open to Work and Public with address fields
   const teachers = await db
     .select()
     .from(schema.teacherProfiles)
@@ -49,19 +59,24 @@ export default async function TeachersPage({ searchParams }: PageProps) {
           ? or(
               like(schema.teacherProfiles.city, `%${location}%`),
               like(schema.teacherProfiles.state, `%${location}%`),
+              like(schema.teacherProfiles.district, `%${location}%`),
+              like(schema.teacherProfiles.mandal, `%${location}%`),
+              like(schema.teacherProfiles.pincode, `%${location}%`),
               like(schema.teacherProfiles.preferredLocations, `%${location}%`)
             )
           : undefined,
+        district ? like(schema.teacherProfiles.district, `%${district}%`) : undefined,
+        state ? like(schema.teacherProfiles.state, `%${state}%`) : undefined,
         subject ? like(schema.teacherProfiles.subjects, `%${subject}%`) : undefined
       )
     )
     .orderBy(desc(schema.teacherProfiles.yearsOfExperience));
 
-  const hasFilters = Boolean(q || location || subject);
+  const hasFilters = Boolean(q || location || district || state || subject);
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Banner */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8F0] shadow-sm">
           <div className="max-w-3xl space-y-3">
@@ -96,7 +111,7 @@ export default async function TeachersPage({ searchParams }: PageProps) {
                 type="text"
                 name="location"
                 defaultValue={location}
-                placeholder="City, District, or State"
+                placeholder="City, District, Mandal, or State"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
               />
             </div>
@@ -119,17 +134,25 @@ export default async function TeachersPage({ searchParams }: PageProps) {
               )}
             </div>
           </form>
+
+          {/* Hyper-Local Address Callout Notice */}
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+            <Compass className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Hyper-Local Matching:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps institutions find nearby qualified educators quickly.
+            </span>
+          </div>
         </div>
 
         {/* Content Section */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Subject Shortcuts */}
+          {/* Left Subject & District Shortcuts */}
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-bold text-sm text-[#163B32] flex items-center gap-2">
                   <Filter className="w-4 h-4 text-[#65A88A]" />
-                  <span>Subject Domains</span>
+                  <span>Filter Teachers</span>
                 </h3>
                 {hasFilters && (
                   <Link href="/teachers" className="text-xs text-[#65A88A] hover:underline">
@@ -138,24 +161,49 @@ export default async function TeachersPage({ searchParams }: PageProps) {
                 )}
               </div>
 
-              <div className="space-y-1.5 text-xs">
-                {["Mathematics", "Physics", "Chemistry", "Computer Science", "English", "Science"].map((s) => (
-                  <Link
-                    key={s}
-                    href={`/teachers?${new URLSearchParams({
-                      ...(q ? { q } : {}),
-                      ...(location ? { location } : {}),
-                      ...(subject === s ? {} : { subject: s }),
-                    }).toString()}`}
-                    className={`block px-3 py-2 rounded-lg transition ${
-                      subject === s
-                        ? "bg-[#163B32] text-white font-medium"
-                        : "text-[#475569] hover:bg-[#F7F5EF] hover:text-[#163B32]"
-                    }`}
-                  >
-                    {s}
-                  </Link>
-                ))}
+              {/* District Filter Quick Search */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  District / Region
+                </span>
+                <form method="GET" action="/teachers" className="relative">
+                  {q && <input type="hidden" name="q" value={q} />}
+                  {subject && <input type="hidden" name="subject" value={subject} />}
+                  <input
+                    type="text"
+                    name="district"
+                    defaultValue={district}
+                    placeholder="e.g. Guntur, Bengaluru..."
+                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-xs text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
+                  />
+                </form>
+              </div>
+
+              {/* Subject Domains */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  Subject Domains
+                </span>
+                <div className="space-y-1.5 text-xs">
+                  {["Mathematics", "Physics", "Chemistry", "Computer Science", "English", "Science"].map((s) => (
+                    <Link
+                      key={s}
+                      href={`/teachers?${new URLSearchParams({
+                        ...(q ? { q } : {}),
+                        ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
+                        ...(subject === s ? {} : { subject: s }),
+                      }).toString()}`}
+                      className={`block px-3 py-2 rounded-lg transition ${
+                        subject === s
+                          ? "bg-[#163B32] text-white font-medium"
+                          : "text-[#475569] hover:bg-[#F7F5EF] hover:text-[#163B32]"
+                      }`}
+                    >
+                      {s}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -188,8 +236,13 @@ export default async function TeachersPage({ searchParams }: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {teachers.map((teacher) => {
                   const subjects = JSON.parse(teacher.subjects || "[]");
-                  const grades = JSON.parse(teacher.gradeLevels || "[]");
-                  const languages = JSON.parse(teacher.languages || "[]");
+                  const locationParts = [
+                    teacher.city,
+                    teacher.mandal,
+                    teacher.district,
+                    teacher.state,
+                    teacher.pincode,
+                  ].filter(Boolean);
 
                   return (
                     <div
@@ -234,9 +287,9 @@ export default async function TeachersPage({ searchParams }: PageProps) {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-4 text-xs text-[#475569] pt-2 border-t border-[#E2E8F0]">
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 font-medium text-slate-700">
                             <MapPin className="w-3.5 h-3.5 text-[#65A88A]" />
-                            {teacher.city}, {teacher.state}
+                            {locationParts.join(", ")}
                           </span>
                           {teacher.employmentTypePref && (
                             <span className="flex items-center gap-1">

@@ -35,9 +35,11 @@ export default function BusListingForm({
   const [fuelType, setFuelType] = useState<"Diesel" | "CNG" | "Electric" | "Petrol">("Diesel");
   const [odometerKms, setOdometerKms] = useState("");
   const [vehicleCondition, setVehicleCondition] = useState<"Excellent" | "Good" | "Fair" | "Needs Repair">("Good");
-  const [previousOwners, setPreviousOwners] = useState(1);
   const [locationCity, setLocationCity] = useState(defaultCity);
   const [locationState, setLocationState] = useState(defaultState);
+  const [district, setDistrict] = useState("");
+  const [mandal, setMandal] = useState("");
+  const [pincode, setPincode] = useState("");
   const [description, setDescription] = useState("");
   const [maintenanceInfo, setMaintenanceInfo] = useState("");
   const [primaryImageUrl, setPrimaryImageUrl] = useState(
@@ -83,9 +85,12 @@ export default function BusListingForm({
         fuelType,
         odometerKms: Number(odometerKms),
         vehicleCondition,
-        previousOwners: Number(previousOwners),
+        previousOwners: 1,
         locationCity,
         locationState,
+        district: district || null,
+        mandal: mandal || null,
+        pincode: pincode || null,
         description,
         maintenanceInfo,
         primaryImageUrl,
@@ -335,6 +340,93 @@ export default function BusListingForm({
             placeholder="e.g. Authorized dealer serviced throughout, Fitness valid till March 2027"
             className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
           />
+        </div>
+      </div>
+
+      {/* Vehicle Location Card */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm space-y-5">
+        <h3 className="font-bold text-base text-[#163B32] pb-2 border-b border-[#E2E8F0]">
+          Vehicle Inspection Location & Address
+        </h3>
+
+        {/* Hyper-Local Address Callout Notice */}
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
+          <span className="text-base shrink-0">📍</span>
+          <span>
+            <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps institutions find nearby available buses with minimal transport inspection distance.
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              City / Village *
+            </label>
+            <input
+              type="text"
+              required
+              value={locationCity}
+              onChange={(e) => setLocationCity(e.target.value)}
+              placeholder="e.g. Visakhapatnam"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              State *
+            </label>
+            <input
+              type="text"
+              required
+              value={locationState}
+              onChange={(e) => setLocationState(e.target.value)}
+              placeholder="e.g. Andhra Pradesh"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              District
+            </label>
+            <input
+              type="text"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              placeholder="e.g. Visakhapatnam"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              Mandal / Tehsil
+            </label>
+            <input
+              type="text"
+              value={mandal}
+              onChange={(e) => setMandal(e.target.value)}
+              placeholder="e.g. Gajuwaka"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              PIN Code
+            </label>
+            <input
+              type="text"
+              maxLength={6}
+              value={pincode}
+              onChange={(e) => setPincode(e.target.value)}
+              placeholder="e.g. 530026"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
         </div>
       </div>
 

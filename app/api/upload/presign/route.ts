@@ -1,10 +1,31 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createPresignedUploadUrl } from "@/lib/storage/r2";
+import { uploadRateLimiter, getClientIp } from "@/lib/rate-limit";
 import path from "path";
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const rateCheck = uploadRateLimiter.check(`upload:${clientIp}`);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Upload rate limit reached. Please wait a minute before requesting more upload slots.",
+          retryAfter: rateCheck.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.reset),
+            "X-RateLimit-Limit": String(rateCheck.limit),
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
+    }
+
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Authentication required to upload files" }, { status: 401 });

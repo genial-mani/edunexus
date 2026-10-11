@@ -25,6 +25,8 @@ interface InstituteProfileFormProps {
     address: string | null;
     city: string;
     state: string;
+    district?: string | null;
+    mandal?: string | null;
     postalCode: string | null;
     contactPhone: string;
     officialEmail: string;
@@ -69,6 +71,8 @@ export default function InstituteProfileForm({ initialData }: InstituteProfileFo
   const [address, setAddress] = useState(initialData.address || "");
   const [city, setCity] = useState(initialData.city);
   const [state, setState] = useState(initialData.state);
+  const [district, setDistrict] = useState(initialData.district || "");
+  const [mandal, setMandal] = useState(initialData.mandal || "");
   const [postalCode, setPostalCode] = useState(initialData.postalCode || "");
   const [contactPhone, setContactPhone] = useState(initialData.contactPhone);
   const [websiteUrl, setWebsiteUrl] = useState(initialData.websiteUrl || "");
@@ -129,6 +133,8 @@ export default function InstituteProfileForm({ initialData }: InstituteProfileFo
         address,
         city,
         state,
+        district: district || null,
+        mandal: mandal || null,
         postalCode,
         contactPhone,
         websiteUrl,
@@ -313,6 +319,14 @@ export default function InstituteProfileForm({ initialData }: InstituteProfileFo
           </div>
         </div>
 
+        {/* Hyper-Local Address Callout Notice */}
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2.5">
+          <span className="text-base shrink-0">📍</span>
+          <span>
+            <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps candidates discover hyper-local relevant institutions and calculate travel distances.
+          </span>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
@@ -322,19 +336,21 @@ export default function InstituteProfileForm({ initialData }: InstituteProfileFo
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
+              placeholder="e.g. Survey No. 42, Main Road"
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
-              City *
+              City / Village *
             </label>
             <input
               type="text"
               required
               value={city}
               onChange={(e) => setCity(e.target.value)}
+              placeholder="e.g. Vijayawada"
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
             />
           </div>
@@ -348,6 +364,49 @@ export default function InstituteProfileForm({ initialData }: InstituteProfileFo
               required
               value={state}
               onChange={(e) => setState(e.target.value)}
+              placeholder="e.g. Andhra Pradesh"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              District
+            </label>
+            <input
+              type="text"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              placeholder="e.g. Krishna / Guntur"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              Mandal / Tehsil
+            </label>
+            <input
+              type="text"
+              value={mandal}
+              onChange={(e) => setMandal(e.target.value)}
+              placeholder="e.g. Gannavaram"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#475569] mb-1.5">
+              PIN Code
+            </label>
+            <input
+              type="text"
+              maxLength={6}
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              placeholder="e.g. 520001"
               className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937]"
             />
           </div>

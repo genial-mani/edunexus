@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db, schema } from "@/lib/db";
 import { eq, desc, and, like, or } from "drizzle-orm";
 import {
@@ -6,19 +7,24 @@ import {
   Search,
   MapPin,
   ShieldCheck,
-  Globe,
-  Briefcase,
-  Bus,
   ArrowRight,
   Filter,
   X,
-  Sparkles,
+  Compass,
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Verified Schools, Colleges & Educational Institutes",
+  description:
+    "Explore accredited CBSE, ICSE, and State Board schools and colleges hiring faculty and providing modern educational infrastructure across India.",
+};
 
 interface PageProps {
   searchParams: Promise<{
     q?: string;
     location?: string;
+    district?: string;
+    state?: string;
     type?: string;
   }>;
 }
@@ -29,9 +35,11 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = params.q?.trim() || "";
   const location = params.location?.trim() || "";
+  const district = params.district?.trim() || "";
+  const state = params.state?.trim() || "";
   const type = params.type?.trim() || "";
 
-  // Query institutes
+  // Query institutes with address fields
   const institutes = await db
     .select()
     .from(schema.institutes)
@@ -46,19 +54,24 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
         location
           ? or(
               like(schema.institutes.city, `%${location}%`),
-              like(schema.institutes.state, `%${location}%`)
+              like(schema.institutes.state, `%${location}%`),
+              like(schema.institutes.district, `%${location}%`),
+              like(schema.institutes.mandal, `%${location}%`),
+              like(schema.institutes.postalCode, `%${location}%`)
             )
           : undefined,
+        district ? like(schema.institutes.district, `%${district}%`) : undefined,
+        state ? like(schema.institutes.state, `%${state}%`) : undefined,
         type ? eq(schema.institutes.type, type as any) : undefined
       )
     )
     .orderBy(desc(schema.institutes.createdAt));
 
-  const hasFilters = Boolean(q || location || type);
+  const hasFilters = Boolean(q || location || district || state || type);
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Banner */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8F0] shadow-sm">
           <div className="max-w-3xl space-y-3">
@@ -93,7 +106,7 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
                 type="text"
                 name="location"
                 defaultValue={location}
-                placeholder="City or State"
+                placeholder="City, District, Mandal, or State"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
               />
             </div>
@@ -116,17 +129,25 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
               )}
             </div>
           </form>
+
+          {/* Hyper-Local Address Callout Notice */}
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+            <Compass className="w-4 h-4 text-emerald-700 shrink-0" />
+            <span>
+              <strong>Hyper-Local Discovery:</strong> Providing granular address details (State, District, Mandal, Village/City, Pincode) helps candidates discover hyper-local relevant institutions.
+            </span>
+          </div>
         </div>
 
         {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Type Filter */}
+          {/* Left Type & District Filter */}
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-bold text-sm text-[#163B32] flex items-center gap-2">
                   <Filter className="w-4 h-4 text-[#65A88A]" />
-                  <span>Institution Type</span>
+                  <span>Filter Directory</span>
                 </h3>
                 {hasFilters && (
                   <Link href="/institutes" className="text-xs text-[#65A88A] hover:underline">
@@ -135,24 +156,49 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
                 )}
               </div>
 
-              <div className="space-y-1.5 text-xs">
-                {["School", "College", "Junior College", "Coaching Centre", "Other"].map((t) => (
-                  <Link
-                    key={t}
-                    href={`/institutes?${new URLSearchParams({
-                      ...(q ? { q } : {}),
-                      ...(location ? { location } : {}),
-                      ...(type === t ? {} : { type: t }),
-                    }).toString()}`}
-                    className={`block px-3 py-2 rounded-lg transition ${
-                      type === t
-                        ? "bg-[#163B32] text-white font-medium"
-                        : "text-[#475569] hover:bg-[#F7F5EF] hover:text-[#163B32]"
-                    }`}
-                  >
-                    {t}
-                  </Link>
-                ))}
+              {/* District Filter Quick Search */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  District / Region
+                </span>
+                <form method="GET" action="/institutes" className="relative">
+                  {q && <input type="hidden" name="q" value={q} />}
+                  {type && <input type="hidden" name="type" value={type} />}
+                  <input
+                    type="text"
+                    name="district"
+                    defaultValue={district}
+                    placeholder="e.g. Guntur, Bengaluru..."
+                    className="w-full px-3 py-2 rounded-lg border border-[#E2E8F0] text-xs text-[#1F2937] placeholder:text-slate-400 bg-white hover:border-[#65A88A] transition"
+                  />
+                </form>
+              </div>
+
+              {/* Institution Type */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#475569] block">
+                  Institution Type
+                </span>
+                <div className="space-y-1.5 text-xs">
+                  {["School", "College", "Junior College", "Coaching Centre", "Other"].map((t) => (
+                    <Link
+                      key={t}
+                      href={`/institutes?${new URLSearchParams({
+                        ...(q ? { q } : {}),
+                        ...(location ? { location } : {}),
+                        ...(district ? { district } : {}),
+                        ...(type === t ? {} : { type: t }),
+                      }).toString()}`}
+                      className={`block px-3 py-2 rounded-lg transition ${
+                        type === t
+                          ? "bg-[#163B32] text-white font-medium"
+                          : "text-[#475569] hover:bg-[#F7F5EF] hover:text-[#163B32]"
+                      }`}
+                    >
+                      {t}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -185,6 +231,13 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {institutes.map((inst) => {
                   const specializations = JSON.parse(inst.specializations || "[]");
+                  const locationParts = [
+                    inst.city,
+                    inst.mandal,
+                    inst.district,
+                    inst.state,
+                    inst.postalCode,
+                  ].filter(Boolean);
 
                   return (
                     <div
@@ -234,7 +287,7 @@ export default async function InstitutesPage({ searchParams }: PageProps) {
 
                         <div className="flex items-center gap-1 text-xs text-[#475569] pt-2 border-t border-[#E2E8F0]">
                           <MapPin className="w-3.5 h-3.5 text-[#65A88A]" />
-                          <span>{inst.city}, {inst.state}</span>
+                          <span className="font-medium text-slate-700">{locationParts.join(", ")}</span>
                         </div>
                       </div>
 
