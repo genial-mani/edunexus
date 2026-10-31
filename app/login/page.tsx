@@ -66,7 +66,7 @@ export default function LoginPage() {
               <GraduationCap className="w-5 h-5 text-[#65A88A]" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-[#163B32]">
-              Edu<span className="text-[#65A88A]">Nexus</span>
+              School <span className="text-[#65A88A]">Market</span>
             </span>
           </Link>
           <h1 className="text-2xl font-extrabold text-[#163B32] tracking-tight">

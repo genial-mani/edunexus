@@ -15,12 +15,13 @@ import {
   Compass,
   X,
 } from "lucide-react";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, calculateLocationScore } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Find Teaching Jobs & Faculty Vacancies",
+  title: "Find Teaching Jobs & Faculty Vacancies | School Market",
   description:
-    "Browse verified teaching jobs, school faculty openings, principal and lecturer positions across India on EduNexus.",
+    "Browse verified teaching jobs, school faculty openings, principal and lecturer positions across India on School Market.",
 };
 
 interface PageProps {
@@ -93,7 +94,54 @@ export default async function JobsPage({ searchParams }: PageProps) {
     )
     .orderBy(desc(schema.jobVacancies.createdAt));
 
+  const currentUser = await getCurrentUser();
+  let userLocation: { city?: string | null; district?: string | null; state?: string | null } | null = null;
+  let userLocationLabel = "";
+
+  if (currentUser) {
+    if (currentUser.role === "teacher") {
+      const profile = await db
+        .select({ city: schema.teacherProfiles.city, district: schema.teacherProfiles.district, state: schema.teacherProfiles.state })
+        .from(schema.teacherProfiles)
+        .where(eq(schema.teacherProfiles.userId, currentUser.id))
+        .limit(1);
+      if (profile[0] && (profile[0].city || profile[0].district || profile[0].state)) {
+        userLocation = profile[0];
+        userLocationLabel = [profile[0].city, profile[0].district, profile[0].state].filter(Boolean).join(", ");
+      }
+    } else if (currentUser.role === "institute_admin" && currentUser.instituteId) {
+      const inst = await db
+        .select({ city: schema.institutes.city, district: schema.institutes.district, state: schema.institutes.state })
+        .from(schema.institutes)
+        .where(eq(schema.institutes.id, currentUser.instituteId))
+        .limit(1);
+      if (inst[0] && (inst[0].city || inst[0].district || inst[0].state)) {
+        userLocation = inst[0];
+        userLocationLabel = [inst[0].city, inst[0].district, inst[0].state].filter(Boolean).join(", ");
+      }
+    }
+  }
+
   const hasFilters = Boolean(q || location || district || state || employmentType || subject);
+
+  const displayJobs = [...jobs];
+  // If not searching, prioritize nearby vacancies from their city/village, district, state
+  if (!hasFilters && userLocation) {
+    displayJobs.sort((a, b) => {
+      const scoreA = calculateLocationScore(
+        { city: a.locationCity, district: a.district, state: a.locationState },
+        userLocation!
+      );
+      const scoreB = calculateLocationScore(
+        { city: b.locationCity, district: b.district, state: b.locationState },
+        userLocation!
+      );
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+      return b.createdAt - a.createdAt;
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
@@ -261,13 +309,27 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
           {/* Results Column */}
           <div className="lg:col-span-3 space-y-4">
+            {!hasFilters && userLocationLabel && (
+              <div className="p-3.5 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-between text-xs text-[#92400E]">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span>
+                    Prioritizing vacancies from your local area in <strong>{userLocationLabel}</strong> (City/Village, District, State) first.
+                  </span>
+                </div>
+                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                  Nearby First
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between text-xs text-[#475569] px-1">
               <span>
-                Showing <strong className="text-[#163B32]">{jobs.length}</strong> active teaching {jobs.length === 1 ? "vacancy" : "vacancies"}
+                Showing <strong className="text-[#163B32]">{displayJobs.length}</strong> active teaching {displayJobs.length === 1 ? "vacancy" : "vacancies"}
               </span>
             </div>
 
-            {jobs.length === 0 ? (
+            {displayJobs.length === 0 ? (
               <div className="p-12 text-center bg-white rounded-3xl border border-[#E2E8F0] space-y-3">
                 <div className="w-12 h-12 rounded-full bg-[#F7F5EF] text-[#163B32] flex items-center justify-center mx-auto">
                   <Briefcase className="w-6 h-6 text-[#65A88A]" />
@@ -285,7 +347,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <div className="space-y-4">
-                {jobs.map((job) => {
+                {displayJobs.map((job) => {
                   const subjects = JSON.parse(job.requiredSubjects || "[]");
                   const grades = JSON.parse(job.gradeLevels || "[]");
                   const locationParts = [

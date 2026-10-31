@@ -40,7 +40,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <span className="font-bold text-[#163B32] block">National Office</span>
-                    <span>Level 5, EduNexus Innovation Park, Outer Ring Road, Bellandur, Bengaluru, Karnataka 560103</span>
+                    <span>Level 5, School Market Tower, Outer Ring Road, Bellandur, Bengaluru, Karnataka 560103</span>
                   </div>
                 </div>
 
@@ -50,7 +50,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <span className="font-bold text-[#163B32] block">Email Support</span>
-                    <span>support@edunexus.org</span>
+                    <span>support@schoolmarket.org</span>
                   </div>
                 </div>
 

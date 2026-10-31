@@ -33,6 +33,9 @@ export async function initDatabase() {
       is_phone_visible INTEGER NOT NULL DEFAULT 0,
       city TEXT,
       state TEXT,
+      district TEXT,
+      mandal TEXT,
+      pincode TEXT,
       preferred_locations TEXT,
       highest_qualification TEXT,
       degrees TEXT,
@@ -64,6 +67,8 @@ export async function initDatabase() {
       address TEXT,
       city TEXT NOT NULL,
       state TEXT NOT NULL,
+      district TEXT,
+      mandal TEXT,
       postal_code TEXT,
       official_email TEXT NOT NULL,
       contact_phone TEXT NOT NULL,
@@ -101,6 +106,9 @@ export async function initDatabase() {
       salary_negotiable INTEGER NOT NULL DEFAULT 1,
       location_city TEXT NOT NULL,
       location_state TEXT NOT NULL,
+      district TEXT,
+      mandal TEXT,
+      pincode TEXT,
       application_deadline INTEGER,
       expected_joining_date TEXT,
       benefits TEXT DEFAULT '[]',
@@ -119,6 +127,7 @@ export async function initDatabase() {
       resume_snapshot_url TEXT,
       status TEXT NOT NULL DEFAULT 'submitted',
       employer_notes TEXT,
+      is_read INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
@@ -148,6 +157,9 @@ export async function initDatabase() {
       previous_owners INTEGER NOT NULL DEFAULT 1,
       location_city TEXT NOT NULL,
       location_state TEXT NOT NULL,
+      district TEXT,
+      mandal TEXT,
+      pincode TEXT,
       description TEXT NOT NULL,
       maintenance_info TEXT,
       primary_image_url TEXT,
@@ -199,4 +211,28 @@ export async function initDatabase() {
       created_at INTEGER NOT NULL
     );
   `);
+
+  // Safe migrations for columns that might be missing in existing local sqlite database
+  const safeAlterStatements = [
+    `ALTER TABLE teacher_profiles ADD COLUMN district TEXT;`,
+    `ALTER TABLE teacher_profiles ADD COLUMN mandal TEXT;`,
+    `ALTER TABLE teacher_profiles ADD COLUMN pincode TEXT;`,
+    `ALTER TABLE institutes ADD COLUMN district TEXT;`,
+    `ALTER TABLE institutes ADD COLUMN mandal TEXT;`,
+    `ALTER TABLE job_vacancies ADD COLUMN district TEXT;`,
+    `ALTER TABLE job_vacancies ADD COLUMN mandal TEXT;`,
+    `ALTER TABLE job_vacancies ADD COLUMN pincode TEXT;`,
+    `ALTER TABLE bus_listings ADD COLUMN district TEXT;`,
+    `ALTER TABLE bus_listings ADD COLUMN mandal TEXT;`,
+    `ALTER TABLE bus_listings ADD COLUMN pincode TEXT;`,
+    `ALTER TABLE job_applications ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0;`
+  ];
+
+  for (const stmt of safeAlterStatements) {
+    try {
+      await client.executeMultiple(stmt);
+    } catch {
+      // column already exists, ignore
+    }
+  }
 }

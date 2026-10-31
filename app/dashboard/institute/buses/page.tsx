@@ -97,8 +97,15 @@ export default async function ManageBusesPage() {
                     <div className="absolute top-2.5 left-2.5 bg-[#163B32]/90 text-white px-2 py-0.5 rounded text-xs font-semibold">
                       {bus.status}
                     </div>
-                    <div className="absolute top-2.5 right-2.5 bg-white/90 text-[#163B32] px-2 py-0.5 rounded text-xs font-bold">
-                      {formatCurrency(bus.askingPrice)}
+                    <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1">
+                      <div className="bg-white/90 text-[#163B32] px-2 py-0.5 rounded text-xs font-bold">
+                        {formatCurrency(bus.askingPrice)}
+                      </div>
+                      {bus.isNegotiable === 1 && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                          Negotiable
+                        </span>
+                      )}
                     </div>
                   </div>
 

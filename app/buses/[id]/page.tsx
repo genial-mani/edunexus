@@ -136,9 +136,13 @@ export default async function BusDetailPage({ params }: PageProps) {
               <div className="text-2xl sm:text-3xl font-black text-[#163B32]">
                 {formatCurrency(bus.askingPrice)}
               </div>
-              <span className="text-xs text-[#65A88A] font-semibold">
-                {bus.isNegotiable === 1 ? "Price Negotiable" : "Fixed Asking Price"}
-              </span>
+              {bus.isNegotiable === 1 ? (
+                <span className="inline-block mt-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                  Price Negotiable
+                </span>
+              ) : (
+                <span className="text-xs text-[#475569] font-medium">Fixed Asking Price</span>
+              )}
             </div>
           </div>
 
@@ -236,7 +240,7 @@ export default async function BusDetailPage({ params }: PageProps) {
               <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
                 <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <span>
-                  EduNexus is an institutional listing and lead marketplace. Buyer and seller institutions are responsible for physical inspection, RTO fitness verification, and legal transfer procedures.
+                  School Market is an institutional listing and lead marketplace. Buyer and seller institutions are responsible for physical inspection, RTO fitness verification, and legal transfer procedures.
                 </span>
               </div>
             </div>

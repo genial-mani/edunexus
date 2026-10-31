@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { GraduationCap, ShieldCheck, Users, Building2, Bus, Heart, Sparkles, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About Us — Bridging Excellence in Education",
+  title: "About Us — Education Recruitment & Institutional Marketplace | School Market",
   description:
-    "Learn how EduNexus connects accredited schools with qualified educators and simplifies institutional school bus fleet marketplace in India.",
+    "Learn how School Market connects accredited schools with qualified educators and simplifies institutional school bus fleet marketplace in India.",
 };
 
 export default function AboutPage() {
@@ -14,15 +14,15 @@ export default function AboutPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#163B32]/5 text-[#163B32] text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-[#65A88A]" />
-            <span>About EduNexus</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] text-xs font-semibold">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>About School Market</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#163B32] tracking-tight">
             Bridging Excellence in Education & Institutional Infrastructure
           </h1>
           <p className="text-base text-[#475569] leading-relaxed">
-            EduNexus was founded to solve two major friction points in Indian education: helping institutions recruit verified teachers transparently, and enabling certified institutions to trade school transport equipment with peace of mind.
+            School Market was founded to solve two major friction points in Indian education: helping institutions recruit verified teachers transparently, and enabling certified institutions to trade school transport equipment with peace of mind.
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export default function AboutPage() {
             </div>
             <h3 className="font-bold text-lg text-[#163B32]">Institutional Trust</h3>
             <p className="text-xs text-[#475569] leading-relaxed">
-              Every school and college on EduNexus undergoes administrator verification before publishing public vacancies or school bus listings, eliminating spurious job advertisements.
+              Every school and college on School Market undergoes administrator verification before publishing public vacancies or school bus listings, eliminating spurious job advertisements.
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-bold text-[#163B32]">Our Vision & Values</h2>
           <div className="space-y-4 text-sm text-[#475569] leading-relaxed">
             <p>
-              Traditional job portals cater indiscriminately to generic corporate positions, failing to understand the specific accreditation needs of CBSE, ICSE, IB, and state education boards. EduNexus was architected from the ground up to recognize subject mastery, grade-level certifications (TGT, PGT, PRT), and educational pedagogy.
+              Traditional job portals cater indiscriminately to generic corporate positions, failing to understand the specific accreditation needs of CBSE, ICSE, IB, and state education boards. School Market was architected from the ground up to recognize subject mastery, grade-level certifications (TGT, PGT, PRT), and educational pedagogy.
             </p>
             <p>
               Simultaneously, institutional capital expenditure on transport fleets is often burdened by excessive middleman fees. By connecting school boards directly with one another, we unlock efficiency and mutual growth.
@@ -76,7 +76,7 @@ export default function AboutPage() {
               href="/register"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white bg-[#163B32] hover:bg-[#122f28] shadow-sm transition"
             >
-              <span>Join EduNexus</span>
+              <span>Join School Market</span>
               <ArrowRight className="w-4 h-4 text-[#65A88A]" />
             </Link>
             <Link

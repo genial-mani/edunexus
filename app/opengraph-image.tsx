@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "EduNexus — Education Recruitment & Institutional Marketplace";
+export const alt = "School Market — Education Recruitment & Institutional Marketplace";
 export const size = {
   width: 1200,
   height: 630,
@@ -61,7 +61,7 @@ export default async function Image() {
                 color: "#FFFFFF",
               }}
             >
-              Edu<span style={{ color: "#34D399" }}>Nexus</span>
+              School <span style={{ color: "#34D399" }}>Market</span>
             </span>
             <span
               style={{

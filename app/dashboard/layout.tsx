@@ -1,5 +1,7 @@
 import { requireAuth } from "@/lib/auth/rbac";
 import Link from "next/link";
+import { db, schema } from "@/lib/db";
+import { eq, and } from "drizzle-orm";
 import {
   GraduationCap,
   LayoutDashboard,
@@ -27,30 +29,65 @@ export default async function DashboardLayout({
 }) {
   const user = await requireAuth();
 
-  const teacherNav = [
+  // Query unread notifications count for any authenticated user
+  const unreadNotifications = await db
+    .select({ id: schema.notifications.id })
+    .from(schema.notifications)
+    .where(
+      and(
+        eq(schema.notifications.userId, user.id),
+        eq(schema.notifications.isRead, 0)
+      )
+    );
+  const unreadNotificationCount = unreadNotifications.length;
+
+  // Query unread applications for institute admin
+  let unreadApplicationsCount = 0;
+  if (user.role === "institute_admin" && user.instituteId) {
+    const unreadApps = await db
+      .select({ id: schema.jobApplications.id })
+      .from(schema.jobApplications)
+      .innerJoin(schema.jobVacancies, eq(schema.jobApplications.vacancyId, schema.jobVacancies.id))
+      .where(
+        and(
+          eq(schema.jobVacancies.instituteId, user.instituteId),
+          eq(schema.jobApplications.isRead, 0)
+        )
+      );
+    unreadApplicationsCount = unreadApps.length;
+  }
+
+  interface NavItem {
+    label: string;
+    href: string;
+    icon: any;
+    badge?: number;
+  }
+
+  const teacherNav: NavItem[] = [
     { label: "Overview", href: "/dashboard/teacher", icon: LayoutDashboard },
     { label: "My Profile", href: "/dashboard/teacher/profile", icon: User },
     { label: "Browse Jobs", href: "/jobs", icon: Search },
     { label: "My Applications", href: "/dashboard/teacher/applications", icon: FileCheck },
     { label: "Saved Jobs", href: "/dashboard/teacher/saved-jobs", icon: Bookmark },
-    { label: "Notifications", href: "/dashboard/teacher/notifications", icon: Bell },
+    { label: "Notifications", href: "/dashboard/teacher/notifications", icon: Bell, badge: unreadNotificationCount },
     { label: "Settings", href: "/dashboard/teacher/settings", icon: Settings },
   ];
 
-  const instituteNav = [
+  const instituteNav: NavItem[] = [
     { label: "Overview", href: "/dashboard/institute", icon: LayoutDashboard },
     { label: "Institute Profile", href: "/dashboard/institute/profile", icon: Building2 },
     { label: "Post a Vacancy", href: "/dashboard/institute/vacancies/new", icon: PlusCircle },
     { label: "Manage Vacancies", href: "/dashboard/institute/vacancies", icon: Briefcase },
-    { label: "Applications Received", href: "/dashboard/institute/applications", icon: FileCheck },
+    { label: "Applications Received", href: "/dashboard/institute/applications", icon: FileCheck, badge: unreadApplicationsCount },
     { label: "Discover Teachers", href: "/teachers", icon: Users },
     { label: "School Buses", href: "/dashboard/institute/buses", icon: Bus },
     { label: "Post Bus for Sale", href: "/dashboard/institute/buses/new", icon: PlusCircle },
-    { label: "Notifications", href: "/dashboard/institute/notifications", icon: Bell },
+    { label: "Notifications", href: "/dashboard/institute/notifications", icon: Bell, badge: unreadNotificationCount },
     { label: "Settings", href: "/dashboard/institute/settings", icon: Settings },
   ];
 
-  const adminNav = [
+  const adminNav: NavItem[] = [
     { label: "Platform Overview", href: "/dashboard/admin", icon: LayoutDashboard },
     { label: "Verify Institutes", href: "/dashboard/admin/institutes", icon: Building2 },
     { label: "Moderate Jobs", href: "/dashboard/admin/jobs", icon: Briefcase },
@@ -97,21 +134,29 @@ export default async function DashboardLayout({
           <nav className="space-y-1">
             {activeNav.map((item) => {
               const Icon = item.icon;
+              const hasBadge = Boolean(item.badge && item.badge > 0);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#163B32] hover:bg-[#F7F5EF] transition"
+                  className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#163B32] hover:bg-[#F7F5EF] transition group"
                 >
-                  <Icon className="w-4 h-4 text-[#65A88A]" />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Icon className="w-4 h-4 text-[#65A88A] shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                  {hasBadge && (
+                    <span className="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-[#D97706] rounded-full shadow-xs ring-1 ring-[#FDE68A]">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* Bottom Help / Logout */}
+        {/* Bottom Return to Public Site */}
         <div className="pt-4 border-t border-[#E2E8F0] space-y-2">
           <Link
             href="/"

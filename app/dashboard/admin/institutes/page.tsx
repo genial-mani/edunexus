@@ -21,7 +21,7 @@ export default async function AdminInstitutesPage() {
           Institute Verification & Accreditation Moderation
         </h1>
         <p className="text-xs sm:text-sm text-[#475569] mt-1">
-          Review, approve, suspend, or reject educational organizations seeking to publish on EduNexus.
+          Review, approve, suspend, or reject educational organizations seeking to publish on School Market.
         </p>
       </div>
 

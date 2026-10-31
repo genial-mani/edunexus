@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Teacher Data Protection & DPDP Compliance",
+  title: "Privacy Policy — Teacher Data Protection & DPDP Compliance | School Market",
   description:
-    "Review EduNexus privacy practices, teacher resume data confidentiality, and institutional data protection guidelines.",
+    "Review School Market privacy practices, teacher resume data confidentiality, and institutional data protection guidelines.",
 };
 
 export default function PrivacyPage() {
@@ -12,8 +12,8 @@ export default function PrivacyPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="bg-white p-8 sm:p-12 rounded-3xl border border-[#E2E8F0] shadow-sm space-y-6">
           <div className="space-y-2 border-b border-[#E2E8F0] pb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#65A88A]">
-              EduNexus Trust & Governance
+            <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
+              School Market Trust & Governance
             </span>
             <h1 className="text-3xl font-extrabold text-[#163B32] tracking-tight">
               Privacy Policy & Teacher Data Protection
@@ -27,14 +27,14 @@ export default function PrivacyPage() {
             <section className="space-y-2">
               <h2 className="text-base font-bold text-[#163B32]">1. Introduction</h2>
               <p>
-                EduNexus (&quot;we&quot;, &quot;our&quot;, or &quot;the platform&quot;) operates an educational recruitment network and institutional asset marketplace. We treat educator privacy as a fundamental cornerstone of our architecture.
+                School Market (&quot;we&quot;, &quot;our&quot;, or &quot;the platform&quot;) operates an educational recruitment network and institutional asset marketplace. We treat educator privacy as a fundamental cornerstone of our architecture.
               </p>
             </section>
 
             <section className="space-y-2">
               <h2 className="text-base font-bold text-[#163B32]">2. Teacher Contact Privacy Guarantees</h2>
               <p>
-                Unlike generic resume search engines, EduNexus implements strict server-side redaction of personal contact vectors:
+                Unlike generic resume search engines, School Market implements strict server-side redaction of personal contact vectors:
               </p>
               <ul className="list-disc pl-5 space-y-1 text-xs">
                 <li>

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Legal Terms for Educators & Institutions",
+  title: "Terms of Service — Legal Terms for Educators & Institutions | School Market",
   description:
-    "Terms and conditions governing the use of EduNexus educational recruitment and institutional marketplace services.",
+    "Terms and conditions governing the use of School Market educational recruitment and institutional marketplace services.",
 };
 
 export default function TermsPage() {
@@ -12,8 +12,8 @@ export default function TermsPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="bg-white p-8 sm:p-12 rounded-3xl border border-[#E2E8F0] shadow-sm space-y-6">
           <div className="space-y-2 border-b border-[#E2E8F0] pb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#65A88A]">
-              EduNexus Terms of Service
+            <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
+              School Market Terms of Service
             </span>
             <h1 className="text-3xl font-extrabold text-[#163B32] tracking-tight">
               Terms & Conditions of Platform Use
@@ -27,7 +27,7 @@ export default function TermsPage() {
             <section className="space-y-2">
               <h2 className="text-base font-bold text-[#163B32]">1. Acceptance of Terms</h2>
               <p>
-                By accessing or registering with EduNexus, you agree to comply with these terms, governing teacher recruitment profiles, institutional vacancy postings, and school bus marketplace inquiries.
+                By accessing or registering with School Market, you agree to comply with these terms, governing teacher recruitment profiles, institutional vacancy postings, and school bus marketplace inquiries.
               </p>
             </section>
 
@@ -41,7 +41,7 @@ export default function TermsPage() {
             <section className="space-y-2">
               <h2 className="text-base font-bold text-[#163B32]">3. School Bus Marketplace Disclaimer</h2>
               <p>
-                EduNexus acts strictly as a listing discovery and communication conduit between certified educational entities. EduNexus does not hold ownership of listed vehicles, does not process escrow or payment for motor vehicles, and makes no representations regarding engine fitness or mechanical durability. Buyers and sellers are required to execute independent technical inspections and complete RTO legal ownership transfers.
+                School Market acts strictly as a listing discovery and communication conduit between certified educational entities. School Market does not hold ownership of listed vehicles, does not process escrow or payment for motor vehicles, and makes no representations regarding engine fitness or mechanical durability. Buyers and sellers are required to execute independent technical inspections and complete RTO legal ownership transfers.
               </p>
             </section>
 

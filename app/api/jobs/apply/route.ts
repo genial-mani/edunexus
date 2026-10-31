@@ -70,6 +70,7 @@ export async function POST(request: Request) {
       resumeSnapshotUrl: profile.resumeUrl || null,
       status: "submitted",
       employerNotes: null,
+      isRead: 0,
       createdAt: now,
       updatedAt: now,
     });
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
           userId: member.userId,
           title: "New Application Received",
           message: `${profile.fullName} applied for ${vacancy.title}.`,
-          link: `/dashboard/institute/vacancies`,
+          link: `/dashboard/institute/applications`,
           isRead: 0,
           createdAt: now,
         });

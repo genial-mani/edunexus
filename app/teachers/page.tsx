@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { db, schema } from "@/lib/db";
 import { eq, desc, and, like, or } from "drizzle-orm";
+import { getCurrentUser } from "@/lib/auth/session";
+import { calculateLocationScore } from "@/lib/utils";
 import {
   Users,
   Search,
@@ -15,7 +17,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Discover Qualified Teachers & Educators Open to Work",
+  title: "Discover Qualified Teachers & Educators Open to Work | School Market",
   description:
     "Connect directly with verified school teachers, subject specialists, and educators actively seeking full-time and part-time positions across India.",
 };
@@ -72,7 +74,54 @@ export default async function TeachersPage({ searchParams }: PageProps) {
     )
     .orderBy(desc(schema.teacherProfiles.yearsOfExperience));
 
+  const currentUser = await getCurrentUser();
+  let userLocation: { city?: string | null; district?: string | null; state?: string | null } | null = null;
+  let userLocationLabel = "";
+
+  if (currentUser) {
+    if (currentUser.role === "institute_admin" && currentUser.instituteId) {
+      const inst = await db
+        .select({ city: schema.institutes.city, district: schema.institutes.district, state: schema.institutes.state })
+        .from(schema.institutes)
+        .where(eq(schema.institutes.id, currentUser.instituteId))
+        .limit(1);
+      if (inst[0] && (inst[0].city || inst[0].district || inst[0].state)) {
+        userLocation = inst[0];
+        userLocationLabel = [inst[0].city, inst[0].district, inst[0].state].filter(Boolean).join(", ");
+      }
+    } else if (currentUser.role === "teacher") {
+      const profile = await db
+        .select({ city: schema.teacherProfiles.city, district: schema.teacherProfiles.district, state: schema.teacherProfiles.state })
+        .from(schema.teacherProfiles)
+        .where(eq(schema.teacherProfiles.userId, currentUser.id))
+        .limit(1);
+      if (profile[0] && (profile[0].city || profile[0].district || profile[0].state)) {
+        userLocation = profile[0];
+        userLocationLabel = [profile[0].city, profile[0].district, profile[0].state].filter(Boolean).join(", ");
+      }
+    }
+  }
+
   const hasFilters = Boolean(q || location || district || state || subject);
+
+  const displayTeachers = [...teachers];
+  // If not searching, prioritize nearby teachers from their city/village, district, state
+  if (!hasFilters && userLocation) {
+    displayTeachers.sort((a, b) => {
+      const scoreA = calculateLocationScore(
+        { city: a.city, district: a.district, state: a.state },
+        userLocation!
+      );
+      const scoreB = calculateLocationScore(
+        { city: b.city, district: b.district, state: b.state },
+        userLocation!
+      );
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+      return b.yearsOfExperience - a.yearsOfExperience;
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] py-8">
@@ -210,13 +259,27 @@ export default async function TeachersPage({ searchParams }: PageProps) {
 
           {/* Results Grid */}
           <div className="lg:col-span-3 space-y-4">
+            {!hasFilters && userLocationLabel && (
+              <div className="p-3.5 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-between text-xs text-[#92400E]">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span>
+                    Prioritizing verified teachers from your local area in <strong>{userLocationLabel}</strong> (City/Village, District, State) first.
+                  </span>
+                </div>
+                <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                  Nearby First
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between text-xs text-[#475569] px-1">
               <span>
-                Found <strong className="text-[#163B32]">{teachers.length}</strong> active educators open to work
+                Found <strong className="text-[#163B32]">{displayTeachers.length}</strong> active educators open to work
               </span>
             </div>
 
-            {teachers.length === 0 ? (
+            {displayTeachers.length === 0 ? (
               <div className="p-12 text-center bg-white rounded-3xl border border-[#E2E8F0] space-y-3">
                 <div className="w-12 h-12 rounded-full bg-[#F7F5EF] text-[#163B32] flex items-center justify-center mx-auto">
                   <Users className="w-6 h-6 text-[#65A88A]" />
@@ -234,7 +297,7 @@ export default async function TeachersPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {teachers.map((teacher) => {
+                {displayTeachers.map((teacher) => {
                   const subjects = JSON.parse(teacher.subjects || "[]");
                   const locationParts = [
                     teacher.city,

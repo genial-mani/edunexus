@@ -132,6 +132,7 @@ export const jobApplications = sqliteTable("job_applications", {
   resumeSnapshotUrl: text("resume_snapshot_url"),
   status: text("status", { enum: ["submitted", "under_review", "shortlisted", "interview", "rejected", "hired", "withdrawn"] }).notNull().default("submitted"),
   employerNotes: text("employer_notes"),
+  isRead: integer("is_read").notNull().default(0),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),
 });

@@ -16,9 +16,9 @@ import {
 import { formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "School Buses & Transport Vans for Sale / Lease",
+  title: "School Buses & Transport Vans for Sale / Lease | School Market",
   description:
-    "Verified marketplace for institutional school buses, minibuses, and student transport vehicles across India listed by verified schools and colleges.",
+    "Verified marketplace for institutional school buses, minibuses, and student transport vehicles across India listed by verified schools and colleges on School Market.",
 };
 
 interface PageProps {
@@ -320,15 +320,24 @@ export default async function BusesPage({ searchParams }: PageProps) {
                           <div className="absolute top-2.5 left-2.5 bg-[#163B32]/90 backdrop-blur-sm text-white px-2.5 py-0.5 rounded text-xs font-semibold">
                             {bus.manufacturingYear}
                           </div>
-                          <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-sm text-[#163B32] px-2.5 py-0.5 rounded text-xs font-bold shadow-sm">
-                            {formatCurrency(bus.askingPrice)}
+                          <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1">
+                            <div className="bg-white/95 backdrop-blur-sm text-[#163B32] px-2.5 py-0.5 rounded text-xs font-bold shadow-sm">
+                              {formatCurrency(bus.askingPrice)}
+                            </div>
+                            {bus.isNegotiable === 1 && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7]/95 text-[#92400E] border border-[#FDE68A] shadow-2xs backdrop-blur-sm">
+                                Price Negotiable
+                              </span>
+                            )}
                           </div>
                         </div>
 
                         <div className="p-4 space-y-2.5">
-                          <h2 className="font-bold text-sm text-[#163B32] group-hover:text-[#65A88A] transition-colors line-clamp-2">
-                            {bus.title}
-                          </h2>
+                          <div className="flex items-start justify-between gap-2">
+                            <h2 className="font-bold text-sm text-[#163B32] group-hover:text-[#65A88A] transition-colors line-clamp-2">
+                              {bus.title}
+                            </h2>
+                          </div>
 
                           <div className="grid grid-cols-3 gap-1.5 py-1 text-center bg-[#F7F5EF] p-2 rounded-xl text-xs text-[#163B32]">
                             <div>

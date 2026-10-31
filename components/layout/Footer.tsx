@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
                 <GraduationCap className="w-5 h-5 text-[#65A88A]" />
               </div>
-              <span className="text-2xl font-bold tracking-tight text-white">EduNexus</span>
+              <span className="text-2xl font-bold tracking-tight text-white">School Market</span>
             </Link>
             <p className="text-sm text-slate-300 leading-relaxed max-w-sm">
               India&apos;s premier professional recruitment network and institutional marketplace connecting qualified teachers, educational institutions, and school transport infrastructure.
@@ -86,7 +86,7 @@ export default function Footer() {
           {/* Legal & Company Column */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase text-[#65A88A] mb-4">
-              EduNexus
+              School Market
             </h3>
             <ul className="space-y-2.5 text-sm text-slate-300">
               <li>
@@ -115,7 +115,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-          <p>© {new Date().getFullYear()} EduNexus Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} School Market Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1">
               Built for Education with <Heart className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" /> in India

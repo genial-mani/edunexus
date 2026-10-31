@@ -15,6 +15,12 @@
     --text-secondary: #475569;
     --success: #10B981;
     --success-light: #ECFDF5;
+    --amber: #D97706;
+    --amber-light: #FFFBEB;
+    --amber-soft: #FEF3C7;
+    --amber-border: #FDE68A;
+    --amber-muted: #F59E0B;
+    --amber-dark: #92400E;
   }
 
   body {
@@ -47,6 +53,14 @@
 
 .text-brand-dark { color: #1F2937; }
 .text-brand-muted { color: #475569; }
+
+/* Custom Academic Amber / Gold Theme Accents */
+.bg-amber-theme { background-color: #D97706; }
+.bg-amber-light { background-color: #FFFBEB; }
+.bg-amber-soft { background-color: #FEF3C7; }
+.text-amber-theme { color: #D97706; }
+.text-amber-dark { color: #92400E; }
+.border-amber-theme { border-color: #FDE68A; }
 
 /* Focus styles */
 input:focus, select:focus, textarea:focus, button:focus-visible {

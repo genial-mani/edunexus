@@ -143,7 +143,7 @@ export default function RegisterPage() {
             <GraduationCap className="w-7 h-7 text-[#65A88A]" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#163B32] tracking-tight">
-            Join the EduNexus Network
+            Join the School Market Network
           </h1>
           <p className="text-sm text-[#475569]">
             Create your account to start hiring, finding teaching opportunities, or listing school buses

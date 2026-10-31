@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
             Reset Password
           </h1>
           <p className="text-sm text-[#475569]">
-            Enter your email and we will send you instructions to recover your EduNexus account.
+            Enter your email and we will send you instructions to recover your School Market account.
           </p>
         </div>
 

@@ -65,10 +65,10 @@ export default function Navbar({ initialUser }: { initialUser?: UserProp | null 
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-[#163B32] flex items-center gap-1">
-                EduNexus
+                School Market
               </span>
               <span className="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-[#65A88A] -mt-1">
-                Education Marketplace
+                Education Ecosystem
               </span>
             </div>
           </Link>
@@ -132,7 +132,7 @@ export default function Navbar({ initialUser }: { initialUser?: UserProp | null 
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#163B32] hover:bg-[#122f28] shadow-sm transition active:scale-[0.98]"
                 >
                   <UserCheck className="w-4 h-4 text-[#65A88A]" />
-                  <span>Join EduNexus</span>
+                  <span>Join School Market</span>
                 </Link>
               </div>
             )}

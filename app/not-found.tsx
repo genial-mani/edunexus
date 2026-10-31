@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Search, Home, Briefcase, GraduationCap, Bus, ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "404 - Page Not Found",
-  description: "The page you are looking for could not be found on EduNexus.",
+  title: "404 - Page Not Found | School Market",
+  description: "The page you are looking for could not be found on School Market.",
 };
 
 export default function NotFound() {
@@ -107,7 +107,7 @@ export default function NotFound() {
           className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to EduNexus Home</span>
+          <span>Back to School Market Home</span>
         </Link>
       </div>
     </div>

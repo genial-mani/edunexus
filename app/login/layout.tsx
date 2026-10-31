@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
+import { getCurrentUser } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Login to EduNexus — Teacher & Institute Portal",
+  title: "Login to School Market — Teacher & Institute Portal",
   description:
-    "Log in to EduNexus to manage your teaching applications, faculty job postings, and educational institution listings.",
+    "Log in to School Market to manage your teaching applications, faculty job postings, and educational institution listings.",
 };
 
-export default function LoginLayout({
+export default async function LoginLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+  if (user) {
+    redirect("/dashboard");
+  }
+
   return children;
 }

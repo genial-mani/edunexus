@@ -17,10 +17,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://edunexus.arundigi.in"),
+  metadataBase: new URL("https://schoolmarket.arundigi.in"),
   title: {
-    default: "EduNexus — Education Recruitment & Institutional Marketplace",
-    template: "%s | EduNexus",
+    default: "School Market — Education Recruitment & Institutional Marketplace",
+    template: "%s | School Market",
   },
   description:
     "India's leading platform connecting verified schools, colleges, talented teachers open to work, and school bus marketplace.",
@@ -34,18 +34,18 @@ export const metadata: Metadata = {
     "ICSE schools",
     "faculty vacancies India",
   ],
-  authors: [{ name: "EduNexus", url: "https://edunexus.arundigi.in" }],
-  creator: "EduNexus",
-  publisher: "EduNexus",
+  authors: [{ name: "School Market", url: "https://schoolmarket.arundigi.in" }],
+  creator: "School Market",
+  publisher: "School Market",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://edunexus.arundigi.in",
-    siteName: "EduNexus",
-    title: "EduNexus — Education Recruitment & Institutional Marketplace",
+    url: "https://schoolmarket.arundigi.in",
+    siteName: "School Market",
+    title: "School Market — Education Recruitment & Institutional Marketplace",
     description:
       "India's leading platform connecting verified schools, colleges, talented teachers open to work, and school bus marketplace.",
     images: [
@@ -53,17 +53,17 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "EduNexus Educational Marketplace",
+        alt: "School Market Educational Marketplace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "EduNexus — Education Recruitment & Institutional Marketplace",
+    title: "School Market — Education Recruitment & Institutional Marketplace",
     description:
       "India's leading platform connecting verified schools, colleges, talented teachers open to work, and school bus marketplace.",
     images: ["/og-image.png"],
-    creator: "@edunexus_in",
+    creator: "@schoolmarket_in",
   },
   robots: {
     index: true,

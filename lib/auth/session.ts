@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import { db, schema } from "../db";
 import { eq, and, gt } from "drizzle-orm";
 
-const SESSION_COOKIE_NAME = "edunexus_session";
+const SESSION_COOKIE_NAME = "schoolmarket_session";
+const LEGACY_COOKIE_NAME = "edunexus_session";
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 export interface AuthenticatedUser {
@@ -43,19 +44,20 @@ export async function createSession(userId: string): Promise<string> {
 
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value || cookieStore.get(LEGACY_COOKIE_NAME)?.value;
 
   if (sessionId) {
     await db.delete(schema.sessions).where(eq(schema.sessions.id, sessionId));
   }
 
   cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete(LEGACY_COOKIE_NAME);
 }
 
 export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value || cookieStore.get(LEGACY_COOKIE_NAME)?.value;
 
     if (!sessionId) return null;
 

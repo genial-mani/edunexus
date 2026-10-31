@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { db, schema } from "@/lib/db";
 import { eq, desc, and } from "drizzle-orm";
 import {
@@ -14,11 +13,13 @@ import {
   CheckCircle2,
   Sparkles,
   Calendar,
-  IndianRupee,
-  Fuel,
   GraduationCap,
   Award,
   ChevronRight,
+  Handshake,
+  Tag,
+  Gauge,
+  PhoneOff,
 } from "lucide-react";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 
@@ -33,9 +34,11 @@ export default async function HomePage() {
       employmentType: schema.jobVacancies.employmentType,
       locationCity: schema.jobVacancies.locationCity,
       locationState: schema.jobVacancies.locationState,
+      district: schema.jobVacancies.district,
       salaryMin: schema.jobVacancies.salaryMin,
       salaryMax: schema.jobVacancies.salaryMax,
       experienceMin: schema.jobVacancies.yearsOfExperienceMin,
+      requiredSubjects: schema.jobVacancies.requiredSubjects,
       createdAt: schema.jobVacancies.createdAt,
       instituteName: schema.institutes.name,
       instituteLogo: schema.institutes.logoUrl,
@@ -64,7 +67,7 @@ export default async function HomePage() {
     .orderBy(desc(schema.teacherProfiles.yearsOfExperience))
     .limit(3);
 
-  // 4. Fetch recently listed buses
+  // 4. Fetch recently listed buses with isNegotiable
   const busesData = await db
     .select({
       id: schema.busListings.id,
@@ -73,10 +76,12 @@ export default async function HomePage() {
       manufacturingYear: schema.busListings.manufacturingYear,
       seatingCapacity: schema.busListings.seatingCapacity,
       askingPrice: schema.busListings.askingPrice,
+      isNegotiable: schema.busListings.isNegotiable,
       locationCity: schema.busListings.locationCity,
       locationState: schema.busListings.locationState,
       vehicleCondition: schema.busListings.vehicleCondition,
       fuelType: schema.busListings.fuelType,
+      odometerKms: schema.busListings.odometerKms,
       primaryImageUrl: schema.busListings.primaryImageUrl,
       createdAt: schema.busListings.createdAt,
       instituteName: schema.institutes.name,
@@ -90,25 +95,28 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. HERO SECTION */}
-      <section className="relative bg-gradient-to-b from-[#F7F5EF] to-[#F8FAF7] pt-12 pb-20 border-b border-[#E2E8F0]/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-gradient-to-b from-[#F7F5EF] via-[#FAF9F5] to-[#F8FAF7] pt-12 pb-20 border-b border-[#E2E8F0]/60 overflow-hidden">
+        {/* Subtle Decorative Golden/Amber Glow in background */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#FEF3C7]/40 rounded-full blur-3xl pointer-events-none -z-0"></div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Hero Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#163B32]/5 border border-[#163B32]/10 text-xs font-semibold text-[#163B32]">
-                <Sparkles className="w-3.5 h-3.5 text-[#65A88A]" />
-                <span>India&apos;s Centralized Education & Faculty Marketplace</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-xs font-semibold text-[#92400E] shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+                <span>India&apos;s Trusted Education & Faculty Marketplace</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#163B32] tracking-tight leading-[1.12]">
-                Where Schools Discover Exceptional Teachers & Assets
+                Where Schools Discover Exceptional <span className="underline decoration-[#65A88A] decoration-wavy">Teachers</span> & Assets
               </h1>
 
               <p className="text-base sm:text-lg text-[#475569] leading-relaxed max-w-2xl">
-                EduNexus connects accredited schools, colleges, and passionate educators in one trusted network. Recruit top teachers, discover open-to-work faculty, and buy or sell verified institutional school buses.
+                <strong>School Market</strong> connects accredited educational institutions and certified teachers in one synchronized network. Recruit top teachers, discover educators open to work, and trade verified institutional school buses.
               </p>
 
-              {/* Search Widget */}
+              {/* Multi-Faceted Unified Search Box */}
               <div className="p-3 bg-white rounded-2xl shadow-xl shadow-[#163B32]/5 border border-[#E2E8F0] space-y-3">
                 <form action="/jobs" method="GET" className="flex flex-col sm:flex-row gap-2">
                   <div className="flex-1 relative">
@@ -116,7 +124,7 @@ export default async function HomePage() {
                     <input
                       type="text"
                       name="q"
-                      placeholder="Subject, role (e.g. Mathematics PGT, Principal)"
+                      placeholder="Subject, role (e.g. Mathematics PGT, Physics, Principal)"
                       className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-[#E2E8F0] text-sm text-[#1F2937] placeholder:text-slate-400 focus:border-[#65A88A]"
                     />
                   </div>
@@ -146,8 +154,8 @@ export default async function HomePage() {
                   <Link href="/jobs?q=Mathematics" className="px-2.5 py-1 rounded-md bg-[#F7F5EF] hover:bg-[#efebe0] transition">
                     PGT Mathematics
                   </Link>
-                  <Link href="/jobs?q=Physics" className="px-2.5 py-1 rounded-md bg-[#F7F5EF] hover:bg-[#efebe0] transition">
-                    Physics Faculty
+                  <Link href="/teachers" className="px-2.5 py-1 rounded-md bg-[#FEF3C7] text-[#92400E] font-medium hover:bg-[#FDE68A] transition border border-[#FDE68A]">
+                    Discover Teachers
                   </Link>
                   <Link href="/jobs?q=Computer+Science" className="px-2.5 py-1 rounded-md bg-[#F7F5EF] hover:bg-[#efebe0] transition">
                     Computer Science / AI
@@ -167,22 +175,22 @@ export default async function HomePage() {
                   alt="Modern classroom education"
                   className="w-full h-[420px] object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#163B32]/90 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#163B32]/95 via-[#163B32]/40 to-transparent flex flex-col justify-end p-6 text-white">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-medium w-fit mb-2">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
                     <span>100% Verified Institutions</span>
                   </div>
                   <h3 className="text-xl font-bold">Empowering Educators & Schools</h3>
                   <p className="text-xs text-slate-200 mt-1">
-                    Direct hiring, verified credentials, and institutional vehicle transfers.
+                    Direct hiring, verified credentials, location discovery, and institutional bus transfers.
                   </p>
                 </div>
               </div>
 
               {/* Floating Stat Pill 1 */}
               <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-[#E2E8F0] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                  <Users className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center font-bold">
+                  <Users className="w-5 h-5 text-[#D97706]" />
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-[#475569]">Open to Work</div>
@@ -216,7 +224,7 @@ export default async function HomePage() {
                   <GraduationCap className="w-6 h-6 text-[#65A88A]" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold tracking-wider uppercase text-[#65A88A]">For Educators & Teachers</span>
+                  <span className="text-xs font-bold tracking-wider uppercase text-[#D97706]">For Educators & Teachers</span>
                   <h3 className="text-2xl font-bold text-[#163B32] mt-1">
                     Looking for Your Next Teaching Opportunity?
                   </h3>
@@ -272,15 +280,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3. EXPLORE OPPORTUNITIES 4 CARDS */}
+      {/* 3. CORE 4 PILLARS */}
       <section className="py-16 bg-[#F8FAF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-3xl font-extrabold text-[#163B32] tracking-tight">
-              Centralized Education Marketplace
+              Centralized Education Ecosystem
             </h2>
             <p className="text-sm text-[#475569] mt-2">
-              Everything educational institutions and teachers need in one synchronized ecosystem.
+              Everything educational institutions and teachers need in one synchronized marketplace.
             </p>
           </div>
 
@@ -295,7 +303,7 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-bold text-lg text-[#163B32]">Teaching Jobs</h3>
                 <p className="text-xs text-[#475569] leading-relaxed">
-                  Browse vacancies across primary, middle, secondary, and college levels. Apply with your saved profile.
+                  Browse vacancies across primary, middle, secondary, and college levels. Localized to your area first.
                 </p>
               </div>
               <div className="pt-4 flex items-center gap-1 text-xs font-semibold text-[#163B32] group-hover:text-[#65A88A]">
@@ -306,18 +314,21 @@ export default async function HomePage() {
 
             <Link
               href="/teachers"
-              className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#65A88A] transition-all group flex flex-col justify-between"
+              className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#D97706] transition-all group flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-[#F7F5EF] text-[#163B32] flex items-center justify-center group-hover:bg-[#163B32] group-hover:text-white transition-colors">
-                  <Users className="w-6 h-6 text-[#65A88A]" />
+                <div className="w-12 h-12 rounded-xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center group-hover:bg-[#D97706] group-hover:text-white transition-colors">
+                  <Users className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-lg text-[#163B32]">Find Teachers</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-lg text-[#163B32]">Find Teachers</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3C7] text-[#92400E]">Smart Local</span>
+                </div>
                 <p className="text-xs text-[#475569] leading-relaxed">
-                  Discover experienced teachers actively open to work. Filter by subjects, grades, and location preferences.
+                  Discover experienced teachers actively open to work. Filtered and prioritized by city, village, and district.
                 </p>
               </div>
-              <div className="pt-4 flex items-center gap-1 text-xs font-semibold text-[#163B32] group-hover:text-[#65A88A]">
+              <div className="pt-4 flex items-center gap-1 text-xs font-semibold text-[#D97706] group-hover:text-[#92400E]">
                 <span>Discover Faculty</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </div>
@@ -333,7 +344,7 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-bold text-lg text-[#163B32]">Institutes</h3>
                 <p className="text-xs text-[#475569] leading-relaxed">
-                  Explore verified schools and colleges. View their active vacancies, campus details, and contact points.
+                  Explore verified schools and colleges. View active faculty vacancies, campus details, and contact points.
                 </p>
               </div>
               <div className="pt-4 flex items-center gap-1 text-xs font-semibold text-[#163B32] group-hover:text-[#65A88A]">
@@ -350,7 +361,10 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-[#F7F5EF] text-[#163B32] flex items-center justify-center group-hover:bg-[#163B32] group-hover:text-white transition-colors">
                   <Bus className="w-6 h-6 text-[#65A88A]" />
                 </div>
-                <h3 className="font-bold text-lg text-[#163B32]">School Buses</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-lg text-[#163B32]">School Buses</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Negotiable</span>
+                </div>
                 <p className="text-xs text-[#475569] leading-relaxed">
                   Direct institute-to-institute marketplace for school buses. Tata, Eicher, Ashok Leyland with verified fitness.
                 </p>
@@ -401,47 +415,42 @@ export default async function HomePage() {
                         )}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-xs text-[#475569] flex items-center gap-1.5">
-                          <span>{job.instituteName}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-semibold text-[#475569]">{job.instituteName}</span>
                           {job.instituteVerified === "approved" && (
-                            <span title="Verified Institute">
+                            <span title="Verified Institution">
                               <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
                             </span>
                           )}
-                        </h4>
-                        <h3 className="font-bold text-base text-[#163B32] group-hover:text-[#65A88A] transition-colors mt-0.5">
+                        </div>
+                        <h3 className="text-base font-bold text-[#163B32] group-hover:text-[#65A88A] transition-colors line-clamp-1">
                           {job.title}
                         </h3>
                       </div>
                     </div>
-
-                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#163B32]/5 text-[#163B32] border border-[#163B32]/10 shrink-0">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F7F5EF] text-[#163B32] shrink-0">
                       {job.employmentType}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-[#475569] pt-1">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#475569]">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-[#65A88A]" />
-                      {job.locationCity}, {job.locationState}
+                      {job.locationCity}, {job.district ? `${job.district}, ` : ""}{job.locationState}
                     </span>
                     {job.salaryMin && job.salaryMax && (
-                      <span className="flex items-center gap-1 font-medium text-[#163B32]">
-                        <IndianRupee className="w-3.5 h-3.5 text-[#65A88A]" />
-                        ₹{job.salaryMin.toLocaleString("en-IN")} - ₹{job.salaryMax.toLocaleString("en-IN")}/mo
+                      <span className="font-semibold text-[#163B32]">
+                        {formatCurrency(job.salaryMin)} - {formatCurrency(job.salaryMax)} /mo
                       </span>
                     )}
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                      Min {job.experienceMin}+ yrs exp
-                    </span>
+                    <span>• {job.experienceMin}+ yrs exp</span>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs text-slate-400">
+                <div className="pt-4 mt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs text-[#475569]">
                   <span>Posted {timeAgo(job.createdAt)}</span>
-                  <span className="font-semibold text-[#163B32] group-hover:text-[#65A88A] flex items-center gap-1">
-                    Apply Now <ArrowRight className="w-3.5 h-3.5" />
+                  <span className="font-semibold text-[#163B32] group-hover:text-[#65A88A] flex items-center gap-0.5">
+                    View & Apply <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </Link>
@@ -450,22 +459,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5. TEACHERS OPEN TO WORK */}
-      <section className="py-16 bg-[#F7F5EF] border-b border-[#E2E8F0]">
+      {/* 5. VERIFIED TEACHERS OPEN TO WORK SHOWCASE */}
+      <section className="py-16 bg-[#F8FAF7] border-b border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10B981]/10 text-emerald-800 text-xs font-semibold mb-2">
-                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-                <span>Active Candidates</span>
-              </div>
-              <h2 className="text-3xl font-extrabold text-[#163B32] tracking-tight">
-                Teachers Open to Work
+              <span className="text-xs font-bold tracking-wider uppercase text-[#D97706]">Verified Educator Pool</span>
+              <h2 className="text-3xl font-extrabold text-[#163B32] tracking-tight mt-1">
+                Educators Open to Work
               </h2>
             </div>
             <Link
               href="/teachers"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#163B32] hover:text-[#65A88A]"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#D97706] hover:text-[#92400E]"
             >
               <span>Explore all teachers</span>
               <ArrowRight className="w-4 h-4" />
@@ -479,25 +485,23 @@ export default async function HomePage() {
                 <Link
                   key={teacher.id}
                   href={`/teachers/${teacher.id}`}
-                  className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#65A88A] transition-all group flex flex-col justify-between"
+                  className="p-6 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#D97706] hover:shadow-md transition-all group flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border border-[#E2E8F0] shrink-0">
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-[#FEF3C7] overflow-hidden shrink-0 flex items-center justify-center font-bold text-lg text-[#D97706]">
                         {teacher.avatarUrl ? (
                           <img src={teacher.avatarUrl} alt={teacher.fullName} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold text-lg text-[#163B32]">
-                            {teacher.fullName[0]}
-                          </div>
+                          teacher.fullName[0]
                         )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-base text-[#163B32] group-hover:text-[#65A88A] transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <h3 className="font-bold text-base text-[#163B32] group-hover:text-[#D97706] transition-colors truncate">
                             {teacher.fullName}
                           </h3>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 shrink-0">
                             Open to Work
                           </span>
                         </div>
@@ -524,7 +528,7 @@ export default async function HomePage() {
                       <MapPin className="w-3.5 h-3.5 text-[#65A88A]" />
                       {teacher.city}, {teacher.state}
                     </span>
-                    <span className="font-semibold text-[#163B32] group-hover:text-[#65A88A] flex items-center gap-1">
+                    <span className="font-semibold text-[#163B32] group-hover:text-[#D97706] flex items-center gap-1">
                       View Profile <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
@@ -602,7 +606,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 7. RECENTLY LISTED BUSES */}
+      {/* 7. RECENTLY LISTED BUSES - WITH NEGOTIABLE BADGE */}
       <section className="py-16 bg-[#F8FAF7] border-b border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
@@ -638,8 +642,16 @@ export default async function HomePage() {
                     <div className="absolute top-3 left-3 bg-[#163B32]/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-xs font-semibold">
                       {bus.manufacturingYear} Model
                     </div>
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-[#163B32] px-2.5 py-1 rounded-md text-xs font-bold shadow-sm">
-                      {formatCurrency(bus.askingPrice)}
+                    {/* Price and Negotiable indicator pill */}
+                    <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                      <div className="bg-white/95 backdrop-blur-sm text-[#163B32] px-2.5 py-1 rounded-md text-xs font-bold shadow-sm">
+                        {formatCurrency(bus.askingPrice)}
+                      </div>
+                      {bus.isNegotiable === 1 && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7]/95 text-[#92400E] border border-[#FDE68A] shadow-2xs backdrop-blur-sm">
+                          Price Negotiable
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -713,9 +725,9 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
                 <Bus className="w-6 h-6 text-[#65A88A]" />
               </div>
-              <h3 className="font-bold text-lg">Direct Vehicle Inquiries</h3>
+              <h3 className="font-bold text-lg">Negotiable Fleet Deals</h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Institutions communicate directly for bus inspections, ownership transfer, and fleet expansion without middlemen.
+                Institutions communicate directly for bus inspections, ownership transfer, and negotiable pricing without middleman commission.
               </p>
             </div>
 
@@ -735,11 +747,15 @@ export default async function HomePage() {
       {/* 9. CALL TO ACTION SECTION */}
       <section className="py-20 bg-gradient-to-b from-[#F7F5EF] to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FEF3C7] text-xs font-semibold text-[#92400E] border border-[#FDE68A]">
+            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>Join India&apos;s Leading School Ecosystem</span>
+          </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#163B32] tracking-tight">
-            Ready to Accelerate Your Institution or Career?
+            Ready to Accelerate Your Institution or Teaching Career?
           </h2>
           <p className="text-base text-[#475569] max-w-2xl mx-auto">
-            Join hundreds of educators and recognized educational institutions across India on EduNexus today.
+            Join hundreds of educators and recognized educational institutions across India on School Market today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link

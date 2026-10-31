@@ -33,6 +33,7 @@ interface ApplicationProps {
     teacherCity: string | null;
     teacherState: string | null;
     teacherSubjects: string[];
+    isNew?: boolean;
   };
 }
 
@@ -110,6 +111,11 @@ export default function ApplicationReviewCard({ app }: ApplicationProps) {
             <span className="text-xs text-[#65A88A] font-semibold">
               {app.teacherExperience} Years Teaching Exp
             </span>
+            {app.isNew && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] shadow-2xs">
+                New Application
+              </span>
+            )}
           </div>
 
           <p className="text-xs text-[#475569]">

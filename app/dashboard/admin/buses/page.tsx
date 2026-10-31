@@ -18,6 +18,7 @@ export default async function AdminBusesPage() {
       manufacturingYear: schema.busListings.manufacturingYear,
       seatingCapacity: schema.busListings.seatingCapacity,
       askingPrice: schema.busListings.askingPrice,
+      isNegotiable: schema.busListings.isNegotiable,
       status: schema.busListings.status,
       createdAt: schema.busListings.createdAt,
       instituteName: schema.institutes.name,
@@ -54,6 +55,11 @@ export default async function AdminBusesPage() {
               <h3 className="font-bold text-base text-[#163B32]">{bus.title}</h3>
               <p className="text-xs text-slate-400">
                 {bus.manufacturer} • {bus.manufacturingYear} Model • {bus.seatingCapacity} Seats • Asking: {formatCurrency(bus.askingPrice)}
+                {bus.isNegotiable === 1 ? (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                    Negotiable
+                  </span>
+                ) : null}
               </p>
             </div>
 

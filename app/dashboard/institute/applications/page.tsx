@@ -2,7 +2,7 @@ import { requireInstituteAdmin } from "@/lib/auth/rbac";
 import Link from "next/link";
 import { db, schema } from "@/lib/db";
 import { eq, desc } from "drizzle-orm";
-import { FileCheck, Users, Briefcase } from "lucide-react";
+import { FileCheck } from "lucide-react";
 import ApplicationReviewCard from "@/components/institutes/ApplicationReviewCard";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,7 @@ export default async function InstituteApplicationsPage() {
     .select({
       id: schema.jobApplications.id,
       status: schema.jobApplications.status,
+      isRead: schema.jobApplications.isRead,
       coverLetter: schema.jobApplications.coverLetter,
       resumeUrl: schema.jobApplications.resumeSnapshotUrl,
       employerNotes: schema.jobApplications.employerNotes,
@@ -34,6 +35,17 @@ export default async function InstituteApplicationsPage() {
     .innerJoin(schema.teacherProfiles, eq(schema.jobApplications.teacherId, schema.teacherProfiles.id))
     .where(eq(schema.jobVacancies.instituteId, user.instituteId!))
     .orderBy(desc(schema.jobApplications.createdAt));
+
+  // Mark unread applications for this institute as read upon page load
+  const unreadAppIds = applications.filter((app) => app.isRead === 0).map((app) => app.id);
+  if (unreadAppIds.length > 0) {
+    for (const id of unreadAppIds) {
+      await db
+        .update(schema.jobApplications)
+        .set({ isRead: 1 })
+        .where(eq(schema.jobApplications.id, id));
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -67,6 +79,7 @@ export default async function InstituteApplicationsPage() {
               key={app.id}
               app={{
                 ...app,
+                isNew: app.isRead === 0,
                 teacherSubjects: JSON.parse(app.teacherSubjectsRaw || "[]"),
               }}
             />
