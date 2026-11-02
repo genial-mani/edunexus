@@ -89,7 +89,7 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
         .from(schema.instituteMembers)
         .where(eq(schema.instituteMembers.userId, user.id));
 
-      const membership = membershipRows[0];
+      let membership = membershipRows[0];
       if (membership) {
         const instRows = await db
           .select()
@@ -102,13 +102,91 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
           instituteVerificationStatus = inst.verificationStatus;
         }
       }
+
+      // Self-healing: if membership or institute missing, link by email or create default
+      if (!instituteId) {
+        const matchingInsts = await db
+          .select()
+          .from(schema.institutes)
+          .where(eq(schema.institutes.officialEmail, user.email));
+        
+        if (matchingInsts[0]) {
+          const matched = matchingInsts[0];
+          instituteId = matched.id;
+          instituteSlug = matched.slug;
+          instituteVerificationStatus = matched.verificationStatus;
+          if (!membership) {
+            await db.insert(schema.instituteMembers).values({
+              id: crypto.randomUUID(),
+              instituteId: matched.id,
+              userId: user.id,
+              role: "admin",
+              createdAt: Date.now(),
+            });
+          }
+        } else {
+          // Create default institute
+          const newInstId = crypto.randomUUID();
+          const slugBase = (user.name || "school").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          const newSlug = `${slugBase || "school"}-${Math.random().toString(36).substring(2, 6)}`;
+          const now = Date.now();
+
+          await db.insert(schema.institutes).values({
+            id: newInstId,
+            name: `${user.name}'s Educational Institution`,
+            slug: newSlug,
+            type: "School",
+            city: "Bengaluru",
+            state: "Karnataka",
+            officialEmail: user.email,
+            contactPhone: "+91 00000 00000",
+            verificationStatus: "pending",
+            educationLevels: "[]",
+            specializations: "[]",
+            createdAt: now,
+            updatedAt: now,
+          });
+
+          await db.insert(schema.instituteMembers).values({
+            id: crypto.randomUUID(),
+            instituteId: newInstId,
+            userId: user.id,
+            role: "admin",
+            createdAt: now,
+          });
+
+          instituteId = newInstId;
+          instituteSlug = newSlug;
+          instituteVerificationStatus = "pending";
+        }
+      }
     } else if (user.role === "teacher") {
       const profileRows = await db
         .select()
         .from(schema.teacherProfiles)
         .where(eq(schema.teacherProfiles.userId, user.id));
-      const profile = profileRows[0];
-      if (profile) {
+      let profile = profileRows[0];
+      if (!profile) {
+        // Self-healing: create initial teacher profile if missing
+        const newProfId = crypto.randomUUID();
+        const now = Date.now();
+        await db.insert(schema.teacherProfiles).values({
+          id: newProfId,
+          userId: user.id,
+          fullName: user.name,
+          email: user.email,
+          isOpenToWork: 1,
+          isPublic: 1,
+          isPhoneVisible: 0,
+          subjects: "[]",
+          gradeLevels: "[]",
+          languages: "[]",
+          yearsOfExperience: 0,
+          createdAt: now,
+          updatedAt: now,
+        });
+        teacherProfileId = newProfId;
+      } else {
         teacherProfileId = profile.id;
       }
     }

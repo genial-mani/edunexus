@@ -22,22 +22,42 @@ export const dynamic = "force-dynamic";
 export default async function InstituteDashboardOverview() {
   const user = await requireInstituteAdmin();
 
-  const instRows = await db
-    .select()
-    .from(schema.institutes)
-    .where(eq(schema.institutes.id, user.instituteId!));
+  let institute: any = null;
+  if (user.instituteId) {
+    const instRows = await db
+      .select()
+      .from(schema.institutes)
+      .where(eq(schema.institutes.id, user.instituteId));
+    institute = instRows[0];
+  }
 
-  const institute = instRows[0];
+  if (!institute) {
+    const memberRows = await db
+      .select()
+      .from(schema.instituteMembers)
+      .where(eq(schema.instituteMembers.userId, user.id));
+    if (memberRows[0]?.instituteId) {
+      const instRows = await db
+        .select()
+        .from(schema.institutes)
+        .where(eq(schema.institutes.id, memberRows[0].instituteId));
+      institute = instRows[0];
+    }
+  }
+
+  const instId = institute?.id || user.instituteId || "";
+  const instName = institute?.name || `${user.name}'s Educational Institution`;
+  const instVerificationStatus = institute?.verificationStatus || "pending";
 
   // Fetch vacancies
-  const vacancies = await db
+  const vacancies = instId ? await db
     .select()
     .from(schema.jobVacancies)
-    .where(eq(schema.jobVacancies.instituteId, institute.id))
-    .orderBy(desc(schema.jobVacancies.createdAt));
+    .where(eq(schema.jobVacancies.instituteId, instId))
+    .orderBy(desc(schema.jobVacancies.createdAt)) : [];
 
   // Fetch applications for all vacancies of this institute
-  const applications = await db
+  const applications = instId ? await db
     .select({
       id: schema.jobApplications.id,
       status: schema.jobApplications.status,
@@ -51,18 +71,18 @@ export default async function InstituteDashboardOverview() {
     .from(schema.jobApplications)
     .innerJoin(schema.jobVacancies, eq(schema.jobApplications.vacancyId, schema.jobVacancies.id))
     .innerJoin(schema.teacherProfiles, eq(schema.jobApplications.teacherId, schema.teacherProfiles.id))
-    .where(eq(schema.jobVacancies.instituteId, institute.id))
-    .orderBy(desc(schema.jobApplications.createdAt));
+    .where(eq(schema.jobVacancies.instituteId, instId))
+    .orderBy(desc(schema.jobApplications.createdAt)) : [];
 
   // Fetch buses
-  const buses = await db
+  const buses = instId ? await db
     .select()
     .from(schema.busListings)
-    .where(eq(schema.busListings.instituteId, institute.id))
-    .orderBy(desc(schema.busListings.createdAt));
+    .where(eq(schema.busListings.instituteId, instId))
+    .orderBy(desc(schema.busListings.createdAt)) : [];
 
   // Fetch inquiries
-  const inquiries = await db
+  const inquiries = instId ? await db
     .select({
       id: schema.busInquiries.id,
       senderName: schema.busInquiries.senderName,
@@ -74,8 +94,8 @@ export default async function InstituteDashboardOverview() {
     })
     .from(schema.busInquiries)
     .innerJoin(schema.busListings, eq(schema.busInquiries.busId, schema.busListings.id))
-    .where(eq(schema.busListings.instituteId, institute.id))
-    .orderBy(desc(schema.busInquiries.createdAt));
+    .where(eq(schema.busListings.instituteId, instId))
+    .orderBy(desc(schema.busInquiries.createdAt)) : [];
 
   const pendingReviewCount = applications.filter((a) => a.status === "submitted" || a.status === "under_review").length;
 
@@ -86,9 +106,9 @@ export default async function InstituteDashboardOverview() {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#163B32] tracking-tight">
-              {institute.name}
+              {instName}
             </h1>
-            {institute.verificationStatus === "approved" ? (
+            {instVerificationStatus === "approved" ? (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1 border border-emerald-200">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
                 <span>Verified Institute</span>
@@ -101,7 +121,7 @@ export default async function InstituteDashboardOverview() {
             )}
           </div>
           <p className="text-sm text-[#475569]">
-            {institute.city}, {institute.state} • {institute.type} Administration Portal
+            {institute?.city || "Bengaluru"}, {institute?.state || "Karnataka"} • {institute?.type || "School"} Administration Portal
           </p>
         </div>
 

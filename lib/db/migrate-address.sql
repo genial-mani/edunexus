@@ -14,3 +14,5 @@ ALTER TABLE job_vacancies ADD COLUMN pincode TEXT;
 ALTER TABLE bus_listings ADD COLUMN district TEXT;
 ALTER TABLE bus_listings ADD COLUMN mandal TEXT;
 ALTER TABLE bus_listings ADD COLUMN pincode TEXT;
+
+ALTER TABLE job_applications ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0;

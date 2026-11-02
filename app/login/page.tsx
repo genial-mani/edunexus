@@ -48,8 +48,7 @@ export default function LoginPage() {
       }
 
       // Success -> navigate to dashboard
-      router.push(data.redirectUrl || "/dashboard");
-      router.refresh();
+      window.location.href = data.redirectUrl || "/dashboard";
     } catch {
       setError("An unexpected network error occurred. Please try again.");
       setLoading(false);
@@ -95,6 +94,8 @@ export default function LoginPage() {
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => {
@@ -128,6 +129,8 @@ export default function LoginPage() {
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="password"
+                  name="password"
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => {

@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
   resume_snapshot_url TEXT,
   status TEXT NOT NULL DEFAULT 'submitted',
   employer_notes TEXT,
+  is_read INTEGER NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL
 );

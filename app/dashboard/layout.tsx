@@ -29,32 +29,41 @@ export default async function DashboardLayout({
 }) {
   const user = await requireAuth();
 
-  // Query unread notifications count for any authenticated user
-  const unreadNotifications = await db
-    .select({ id: schema.notifications.id })
-    .from(schema.notifications)
-    .where(
-      and(
-        eq(schema.notifications.userId, user.id),
-        eq(schema.notifications.isRead, 0)
-      )
-    );
-  const unreadNotificationCount = unreadNotifications.length;
-
-  // Query unread applications for institute admin
-  let unreadApplicationsCount = 0;
-  if (user.role === "institute_admin" && user.instituteId) {
-    const unreadApps = await db
-      .select({ id: schema.jobApplications.id })
-      .from(schema.jobApplications)
-      .innerJoin(schema.jobVacancies, eq(schema.jobApplications.vacancyId, schema.jobVacancies.id))
+  // Query unread notifications count for any authenticated user (safely guarded)
+  let unreadNotificationCount = 0;
+  try {
+    const unreadNotifications = await db
+      .select({ id: schema.notifications.id })
+      .from(schema.notifications)
       .where(
         and(
-          eq(schema.jobVacancies.instituteId, user.instituteId),
-          eq(schema.jobApplications.isRead, 0)
+          eq(schema.notifications.userId, user.id),
+          eq(schema.notifications.isRead, 0)
         )
       );
-    unreadApplicationsCount = unreadApps.length;
+    unreadNotificationCount = unreadNotifications.length;
+  } catch (err) {
+    console.warn("Could not query unread notifications count:", err);
+  }
+
+  // Query unread applications for institute admin (safely guarded)
+  let unreadApplicationsCount = 0;
+  if (user.role === "institute_admin" && user.instituteId) {
+    try {
+      const unreadApps = await db
+        .select({ id: schema.jobApplications.id })
+        .from(schema.jobApplications)
+        .innerJoin(schema.jobVacancies, eq(schema.jobApplications.vacancyId, schema.jobVacancies.id))
+        .where(
+          and(
+            eq(schema.jobVacancies.instituteId, user.instituteId),
+            eq(schema.jobApplications.isRead, 0)
+          )
+        );
+      unreadApplicationsCount = unreadApps.length;
+    } catch (err) {
+      console.warn("Could not query unread applications count:", err);
+    }
   }
 
   interface NavItem {

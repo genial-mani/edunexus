@@ -126,8 +126,7 @@ export default function RegisterPage() {
       }
 
       // Automatically logged in -> redirect to dashboard
-      router.push(data.redirectUrl || "/dashboard");
-      router.refresh();
+      window.location.href = data.redirectUrl || "/dashboard";
     } catch {
       setError("An unexpected network error occurred. Please try again.");
       setLoading(false);
@@ -199,6 +198,8 @@ export default function RegisterPage() {
                     <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                     <input
                       type="text"
+                      name="instituteName"
+                      autoComplete="organization"
                       required
                       value={instituteName}
                       onChange={(e) => {
@@ -241,6 +242,8 @@ export default function RegisterPage() {
                     <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                     <input
                       type="text"
+                      name="representativeName"
+                      autoComplete="name"
                       required
                       value={name}
                       onChange={(e) => {
@@ -266,6 +269,8 @@ export default function RegisterPage() {
                     <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                     <input
                       type="tel"
+                      name="contactPhone"
+                      autoComplete="tel"
                       required
                       value={contactPhone}
                       onChange={(e) => {
@@ -292,6 +297,8 @@ export default function RegisterPage() {
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                   <input
                     type="text"
+                    name="name"
+                    autoComplete="name"
                     required
                     value={name}
                     onChange={(e) => {
@@ -318,6 +325,8 @@ export default function RegisterPage() {
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => {
@@ -435,6 +444,8 @@ export default function RegisterPage() {
                 </label>
                 <input
                   type="text"
+                  name="pincode"
+                  autoComplete="postal-code"
                   maxLength={6}
                   value={pincode}
                   onChange={(e) => {
@@ -460,6 +471,8 @@ export default function RegisterPage() {
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="password"
+                  name="password"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                   value={password}
